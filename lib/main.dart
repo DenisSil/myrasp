@@ -72,7 +72,8 @@ class _schedulePageState extends State<schedulePage> {
     return Column(
           children: [
             Container(
-                margin: const EdgeInsets.all(20),
+                margin: const EdgeInsets.only(top: 20),
+                padding: const EdgeInsets.all(10),
                 width: MediaQuery.of(context).size.width/3,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
@@ -110,7 +111,7 @@ class _schedulePageState extends State<schedulePage> {
                             });
                       },
                     ),
-                  if (clickCard) const SubjectCard()
+                  if (clickCard) Column(children: [],)
                   ],
                 ),
             ),
@@ -123,28 +124,11 @@ class notesPage extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return const MaterialApp(
-        home: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('Понедельник 31.08',
-                style: TextStyle(
-                    color: Colors.black,
-                    decoration: TextDecoration.none,
-                    fontSize: 20,
-            )),
-            Icon(Icons.keyboard_arrow_down_sharp, size: 30,),
-          ],
-        )
-    );
+    return const Text('123');
   }
 }
 
-class SubjectCard extends StatelessWidget {
-  const SubjectCard({super.key});
-
-  @override
-  Widget build(BuildContext context) {
+Widget subjectCard() {
     return Container(
       margin: const EdgeInsets.all(20),
       padding: const EdgeInsets.all(10),
@@ -194,7 +178,6 @@ class SubjectCard extends StatelessWidget {
         ],
       ),
     );
-  }
 }
 
 
