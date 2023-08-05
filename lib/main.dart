@@ -11,7 +11,9 @@ class MyRasp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: MyApp());
+    return const MaterialApp(
+        home: MyApp()
+    );
   }
 }
 
@@ -67,18 +69,13 @@ class schedulePage extends StatefulWidget {
 }
 
 class _schedulePageState extends State<schedulePage> {
-  
-  bool clickCard = false;
-  double cardHeight = 70;
+
   var data;
 
   void getSubjects() async {
     data = await getData(43732, '2023-04-13');
   }
 
-  double heightR(){
-    return (70+(data[data.keys.toList()[0]].length*145)).toDouble();
-  }
 
   @override
   initState() {
@@ -91,82 +88,122 @@ class _schedulePageState extends State<schedulePage> {
     // TODO: implement build
     return Align(
       alignment: Alignment.topCenter,
-      child: SingleChildScrollView(
-        child: Column(
-              children: [
-          AnimatedContainer(
-          curve: Curves.fastOutSlowIn,
-          height: cardHeight,
-          duration: const Duration(milliseconds: 500),
+      child: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+        child: SingleChildScrollView(
           child: Container(
-                    margin: const EdgeInsets.only(top: 20, left: 20, right: 20),
-                    padding: const EdgeInsets.all(10),
-                    width: MediaQuery.of(context).size.width,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.25),
-                            spreadRadius: 0,
-                            blurRadius: 4,
-                            offset: const Offset(0, 4), // changes position of shadow
-                          ),
-                        ]
-                    ),
-                    child: Column(
-                      children: [
-                        InkWell(
-                            child:  Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                    const Text('Понедельник 31.08',
-                                        style: TextStyle(
-                                        color: Colors.black,
-                                        decoration: TextDecoration.none,
-                                        fontSize: 20,
-                                        )
-                                    ),
-                                  if (clickCard)  const Icon(Icons.keyboard_arrow_up_outlined, size: 30,)
-                                  else const Icon(Icons.keyboard_arrow_down_outlined, size: 30,)
-                                ],
-                            ),
-                            onTap: (){
-                                setState(() {
-
-                                  if(!clickCard){
-                                    cardHeight = heightR();
-                                    Future.delayed(const Duration(milliseconds: 500), () => setState((){clickCard = true;}));
-                                  }else{
-                                    clickCard = false;
-                                    cardHeight = 70;
-                                  }
-
-                                });
-                          },
-                        ),
-                      if (clickCard)
-                        ListView.builder(
-                            scrollDirection: Axis.vertical,
-                            shrinkWrap: true,
-                            padding: const EdgeInsets.only(bottom: 8),
-                            itemCount: data[data.keys.toList()[0]].length,
-                            itemBuilder: (BuildContext context, int index) {
-                              print(data[data.keys.toList()[0]][index].subjectName);
-                            return subjectCard(data[data.keys.toList()[0]][index]);
-            }
-        )
-                      ],
-                    ),
-                )
-          ),
-              ],
+            constraints: const BoxConstraints(
+              maxWidth: 600,
             ),
+            child: ListView.builder(
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                padding: const EdgeInsets.only(bottom: 8),
+                itemCount: data.keys.toList().length,
+                itemBuilder: (BuildContext context, int index) {
+                  print(data);
+                  return cardDayTemplate( data[data.keys.toList()[index]]);
+                }
+            ),
+          )
+        ),
       ),
     );
   }
 }
+
+
+Widget cardDayTemplate(List<Subject> dataOfDay) {
+  return cardDay(dataOfDay);
+}
+
+class cardDay extends StatefulWidget {
+
+  List<Subject> dataOfDay;
+  cardDay(this.dataOfDay);
+
+  @override
+  State<cardDay> createState() => _cardDayState();
+}
+
+class _cardDayState extends State<cardDay> {
+
+  bool clickCard = false;
+  double cardHeight = 70;
+  double heightR(cardsCount){
+    return (70+(cardsCount*145)+20).toDouble();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+        curve: Curves.fastOutSlowIn,
+        height: cardHeight,
+        duration: const Duration(milliseconds: 500),
+        child: Container(
+
+          margin: const EdgeInsets.only(top: 20, left: 20, right: 20),
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.25),
+                  spreadRadius: 0,
+                  blurRadius: 4,
+                  offset: const Offset(0, 4), // changes position of shadow
+                ),
+              ]
+          ),
+          child: Column(
+            children: [
+              InkWell(
+                child:  Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('${this.widget.dataOfDay[0].data} - ${this.widget.dataOfDay[0].dayOfTheWeek}',
+                        style: const TextStyle(
+                          color: Colors.black,
+                          decoration: TextDecoration.none,
+                          fontSize: 20,
+                        )
+                    ),
+                    if (clickCard)  const Icon(Icons.keyboard_arrow_up_outlined, size: 30,)
+                    else const Icon(Icons.keyboard_arrow_down_outlined, size: 30,)
+                  ],
+                ),
+                onTap: (){
+                  setState(() {
+
+                    if(!clickCard){
+                      cardHeight = heightR(this.widget.dataOfDay.length);
+                      Future.delayed(const Duration(milliseconds: 500), () => setState((){clickCard = true;}));
+                    }else{
+                      clickCard = false;
+                      cardHeight = 70;
+                    }
+
+                  });
+                },
+              ),
+              if (clickCard)
+                ListView.builder(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.only(bottom: 8),
+                    itemCount: this.widget.dataOfDay.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return subjectCard(this.widget.dataOfDay[index]);
+                    }
+                )
+            ],
+          ),
+        )
+    );
+  }
+}
+
 
 class notesPage extends StatelessWidget{
   @override
