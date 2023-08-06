@@ -1,8 +1,10 @@
-import 'dart:io';
 import 'dart:ui';
 import 'parser.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+
+
 
 void main() => runApp(const MyRasp());
 
@@ -53,10 +55,12 @@ class MyAppState extends State<MyApp> {
           ),
         ],
       ),
-      body: Center( child:<Widget>[
-        schedulePage(),
-        notesPage(),
-      ][currentPageIndex],
+      body: IndexedStack(
+        index: currentPageIndex,
+        children:<Widget>[
+          schedulePage(),
+          notesPage(),
+        ],
       )
     );
   }
@@ -72,21 +76,22 @@ class _schedulePageState extends State<schedulePage> {
 
   var data;
 
-  void getSubjects() async {
-    data = await getData(43732, '2023-04-13');
-  }
-
-
   @override
   initState() {
     super.initState();
-    getSubjects();
+    getData(43732, '2023-04-13').then((value) => data = value);
   }
   @override
   Widget build(BuildContext context) {
 
     // TODO: implement build
-    return Align(
+    return data == null? const Center(
+      child: SpinKitFadingCircle(
+        color:Colors.black,
+        size: 40,
+      ),
+    )
+    : Align(
       alignment: Alignment.topCenter,
       child: ScrollConfiguration(
         behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
@@ -96,15 +101,14 @@ class _schedulePageState extends State<schedulePage> {
               maxWidth: 600,
             ),
             child: ListView.builder(
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-                padding: const EdgeInsets.only(bottom: 8),
-                itemCount: data.keys.toList().length,
-                itemBuilder: (BuildContext context, int index) {
-                  print(data);
-                  return cardDayTemplate( data[data.keys.toList()[index]]);
-                }
-            ),
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.only(bottom: 8),
+                    itemCount: data.keys.toList().length,
+                    itemBuilder: (BuildContext context, int index) {
+                        return cardDayTemplate( data[data.keys.toList()[index]]);
+                    }
+                  ),
           )
         ),
       ),
@@ -205,11 +209,90 @@ class _cardDayState extends State<cardDay> {
 }
 
 
-class notesPage extends StatelessWidget{
+class notesPage extends StatefulWidget{
+  @override
+  State<notesPage> createState() => _notesPageState();
+}
+
+class _notesPageState extends State<notesPage> {
+
+  List<String> notes = [];
+  final TextEditingController _controller = new TextEditingController();
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return const Text('123');
+    return Align(
+      alignment: Alignment.center,
+      child: Container(
+        padding: const EdgeInsets.only(top: 20),
+        constraints: const BoxConstraints(
+          maxWidth: 600,
+        ),
+        child:Column(
+          children: [
+            Container(
+              child: ListView.builder(
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                padding: EdgeInsets.zero,
+                itemCount: notes.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Container(
+                    padding: const EdgeInsets.only(top:5, bottom: 5),
+                      decoration: const BoxDecoration(
+                        border: Border(top: BorderSide(color: Colors.black))
+                      ),
+                      child: Row(
+
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children:[
+                            Text( notes[index],
+                                style: const TextStyle(
+                                fontSize: 16,
+                              )
+                            ),
+                            IconButton(onPressed: (){
+                                  setState(() {
+                                    notes.removeAt(index);
+                                  });
+                                },
+                                icon: const Icon(Icons.clear),
+                                iconSize: 20,
+                            splashRadius: 20,)
+                      ])
+                  );
+                }
+            ),
+          ),
+          Container(
+            decoration: const BoxDecoration(
+              border: Border(
+                top: BorderSide(color: Colors.black),
+                bottom: BorderSide(color: Colors.black)
+              )
+            ),
+            constraints: const BoxConstraints(
+              maxWidth: 600,
+            ),
+            child: TextField(
+              controller: _controller,
+              onSubmitted: (value){
+                setState(() {
+                  notes.add(value);
+                  _controller.clear();
+                });
+              },
+              cursorColor: Colors.black,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                hintText: '',
+              ),
+            ),
+          )
+        ],
+      ),
+      )
+    );
   }
 }
 
@@ -261,12 +344,13 @@ class subjectCardTemplate extends StatelessWidget {
                   Container(
                     margin: const EdgeInsets.only(left: 20),
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('${subjectInfo.subjectName}'),
+                          Text('${subjectInfo.subjectName}', softWrap: true),
                           Padding(
                             padding: const EdgeInsets.only(top: 5.0),
-                            child: Text('${subjectInfo.teacher}'),
+                            child: Text('${subjectInfo.teacher}', softWrap: true),
                           ),
                         ],
                       ),
