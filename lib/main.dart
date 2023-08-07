@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'parser.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -79,11 +81,11 @@ class _schedulePageState extends State<schedulePage> {
 
   var data = {};
   int group = 43732;
-
+  String date = DateTime.now().toString().substring(0,10);
   @override
   initState() {
     super.initState();
-    getData(group).then((value) => data = value);
+    getData(group, date).then((value) => data = value);
   }
   @override
   Widget build(BuildContext context) {
@@ -106,48 +108,68 @@ class _schedulePageState extends State<schedulePage> {
             ),
             child: Column(
               children: [
-                Container(
-                  margin: const EdgeInsets.only(top: 10, left: 20, right: 20),
-                  child:
-                  InkWell(
-                    borderRadius: const BorderRadius.all(Radius.circular(10)),
-                    focusColor: Colors.grey[400],
-                    onTap: ()async{
-                      var groupId = await Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const searchPage(),
-                        ),
-                      );
-                      if (groupId != null){
 
-                        data = {};
-                        group = groupId;
-                        data = await getData(group);
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.only(top: 10, left: 20, right: 5),
+                        child:
+                        InkWell(
+                          borderRadius: const BorderRadius.all(Radius.circular(10)),
+                          focusColor: Colors.grey[400],
+                          onTap: ()async{
+                            var groupId = await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const searchPage(),
+                              ),
+                            );
+                            if (groupId != null){
+                              setState(() {
+                                data = {};
+                              });
+                              group = groupId;
+                              data = await getData(group, date);
+                              setState(() {
+                                data = data;
+                              });
+                            }
+                            },
+                          child:
+                          Container(
+                            decoration:
+                            BoxDecoration(
+                                color: Colors.grey[200],
+                                borderRadius: BorderRadius.circular(10)
+                            ),
+                            padding: const EdgeInsets.only(top:10,bottom: 10, left: 10),
+                            child: Row(
+                              children: [
+                                Icon(Icons.search, color: Colors.grey[600],),
+                                Text('Поиск',
+                                    style: TextStyle(
+                                        color: Colors.grey[600]
+                                    )
+                                )
+                              ],
+                            ),
+                          )
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      hoverColor: Colors.white,
+                      onTap: () async {
+                        var selectedDate = await _selectDate(context, DateTime.parse('$date'));
+                        date = selectedDate;
+                        data = await getData(group, date);
                         setState(() {
                           data = data;
                         });
-                      }
                       },
-                    child:
-                    Container(
-                      decoration:
-                      BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(10)
-                      ),
-                      padding: const EdgeInsets.all(10),
-                      child: Row(
-                        children: [
-                          Icon(Icons.search, color: Colors.grey[600],),
-                          Text('Поиск',
-                              style: TextStyle(
-                                  color: Colors.grey[600]
-                              )
-                          )
-                        ],
-                      ),
-                    )
-                  ),
+                      child: Icon(Icons.date_range, size: 35, color: Colors.black,),
+                    ),
+                  ],
                 ),
                 ListView.builder(
                     scrollDirection: Axis.vertical,
@@ -196,7 +218,7 @@ class _cardDayState extends State<cardDay> {
         height: cardHeight,
         duration: const Duration(milliseconds: 500),
         child: Container(
-          margin: const EdgeInsets.only(top: 10, left: 20, right: 20),
+          margin: const EdgeInsets.only(top: 10, left: 20),
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
               color: Colors.white,
@@ -413,4 +435,16 @@ class subjectCardTemplate extends StatelessWidget {
 }
 
 
-
+Future<String> _selectDate(BuildContext context, DateTime selectedDate) async {
+   DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2022),
+      lastDate: DateTime(2024)
+  );
+  if (picked !=null && picked.toString().substring(0,10) != DateTime.now().toString().substring(0,10)){
+    return picked.toString().substring(0,10);
+  }else{
+    return selectedDate.toString().substring(0,10);
+  }
+}

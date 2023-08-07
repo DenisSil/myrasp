@@ -48,7 +48,6 @@ class _searchPageState extends State<searchPage> {
                       padding: const EdgeInsets.only(left: 5),
                       decoration: BoxDecoration(
                           border: Border.all(color:Colors.black),
-                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Row(
                           children: [
@@ -80,7 +79,7 @@ class _searchPageState extends State<searchPage> {
                               ),
                             ),
                           IconButton(
-                              onPressed: (){
+                              onPressed: () {
                                 if (_controller.text != ''){
                                   _controller.clear();
                                 }else{
@@ -96,7 +95,7 @@ class _searchPageState extends State<searchPage> {
                   ),
                 ],
               ),
-
+            if (groups != [])
             Expanded(
               child: Container(
                 margin: const EdgeInsets.only(left: 45),
