@@ -2,12 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 
-
-void main(){
-  getData(43732, '2023-04-13');
-}
-
-Future<Map<String,List<Subject>>> getData(int idGroup, String date) async{
+Future<Map<String,List<Subject>>> getData(int idGroup, [String date='2023-04-13']) async{
   List<Subject> listSubject = [];
 
   Map<String,List<Subject>> listSubjects = {};
@@ -39,6 +34,26 @@ Future<Map<String,List<Subject>>> getData(int idGroup, String date) async{
   });
   return listSubjects;
 }
+
+
+Future<Map<String,int>> getGroups() async {
+  Map<String,int> groups = {};
+
+  var url = Uri.https('edu.donstu.ru', 'api/raspGrouplist',
+      {'year': '2022-2023'});
+
+  final response = await http.get(url);
+
+  final data = jsonDecode(response.body)['data'];
+
+
+  data.forEach((group){
+    groups[group['name']] = group['id'];
+  });
+  return groups;
+
+}
+
 
 class Subject{
 

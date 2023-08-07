@@ -1,9 +1,8 @@
-import 'dart:ui';
 import 'parser.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-
+import 'searchPage.dart';
 
 
 void main() => runApp(const MyRasp());
@@ -20,6 +19,7 @@ class MyRasp extends StatelessWidget {
 }
 
 class MyApp extends StatefulWidget {
+
   const MyApp({super.key});
 
   @override
@@ -28,6 +28,7 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp> {
   int currentPageIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,24 +69,27 @@ class MyAppState extends State<MyApp> {
 
 class schedulePage extends StatefulWidget {
 
+  const schedulePage({super.key});
+
   @override
   State<schedulePage> createState() => _schedulePageState();
 }
 
 class _schedulePageState extends State<schedulePage> {
 
-  var data;
+  var data = {};
+  int group = 43732;
 
   @override
   initState() {
     super.initState();
-    getData(43732, '2023-04-13').then((value) => data = value);
+    getData(group).then((value) => data = value);
   }
   @override
   Widget build(BuildContext context) {
 
     // TODO: implement build
-    return data == null? const Center(
+    return data == {}? const Center(
       child: SpinKitFadingCircle(
         color:Colors.black,
         size: 40,
@@ -100,16 +104,63 @@ class _schedulePageState extends State<schedulePage> {
             constraints: const BoxConstraints(
               maxWidth: 600,
             ),
-            child: ListView.builder(
+            child: Column(
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 10, left: 20, right: 20),
+                  child:
+                  InkWell(
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
+                    focusColor: Colors.grey[400],
+                    onTap: ()async{
+                      var groupId = await Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const searchPage(),
+                        ),
+                      );
+                      if (groupId != null){
+
+                        data = {};
+                        group = groupId;
+                        data = await getData(group);
+                        setState(() {
+                          data = data;
+                        });
+                      }
+                      },
+                    child:
+                    Container(
+                      decoration:
+                      BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(10)
+                      ),
+                      padding: const EdgeInsets.all(10),
+                      child: Row(
+                        children: [
+                          Icon(Icons.search, color: Colors.grey[600],),
+                          Text('Поиск',
+                              style: TextStyle(
+                                  color: Colors.grey[600]
+                              )
+                          )
+                        ],
+                      ),
+                    )
+                  ),
+                ),
+                ListView.builder(
                     scrollDirection: Axis.vertical,
                     shrinkWrap: true,
                     padding: const EdgeInsets.only(bottom: 8),
                     itemCount: data.keys.toList().length,
                     itemBuilder: (BuildContext context, int index) {
-                        return cardDayTemplate( data[data.keys.toList()[index]]);
+                      return cardDayTemplate( data[data.keys.toList()[index]]);
                     }
-                  ),
-          )
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -124,7 +175,7 @@ Widget cardDayTemplate(List<Subject> dataOfDay) {
 class cardDay extends StatefulWidget {
 
   List<Subject> dataOfDay;
-  cardDay(this.dataOfDay);
+  cardDay(this.dataOfDay, {super.key});
 
   @override
   State<cardDay> createState() => _cardDayState();
@@ -133,9 +184,9 @@ class cardDay extends StatefulWidget {
 class _cardDayState extends State<cardDay> {
 
   bool clickCard = false;
-  double cardHeight = 70;
+  double cardHeight = 60;
   double heightR(cardsCount){
-    return (70+(cardsCount*145)+20).toDouble();
+    return (60+(cardsCount*145)+20).toDouble();
   }
 
   @override
@@ -145,8 +196,7 @@ class _cardDayState extends State<cardDay> {
         height: cardHeight,
         duration: const Duration(milliseconds: 500),
         child: Container(
-
-          margin: const EdgeInsets.only(top: 20, left: 20, right: 20),
+          margin: const EdgeInsets.only(top: 10, left: 20, right: 20),
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
               color: Colors.white,
@@ -185,7 +235,7 @@ class _cardDayState extends State<cardDay> {
                       Future.delayed(const Duration(milliseconds: 500), () => setState((){clickCard = true;}));
                     }else{
                       clickCard = false;
-                      cardHeight = 70;
+                      cardHeight = 60;
                     }
 
                   });
@@ -210,6 +260,8 @@ class _cardDayState extends State<cardDay> {
 
 
 class notesPage extends StatefulWidget{
+  const notesPage({super.key});
+
   @override
   State<notesPage> createState() => _notesPageState();
 }
@@ -243,7 +295,6 @@ class _notesPageState extends State<notesPage> {
                         border: Border(top: BorderSide(color: Colors.black))
                       ),
                       child: Row(
-
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children:[
                             Text( notes[index],
@@ -303,7 +354,7 @@ Widget subjectCard(Subject subjectInfo) {
 class subjectCardTemplate extends StatelessWidget {
 
   Subject subjectInfo;
-  subjectCardTemplate(this.subjectInfo);
+  subjectCardTemplate(this.subjectInfo, {super.key});
 
   @override
   Widget build(BuildContext context) {
