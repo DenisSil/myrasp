@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'parser.dart';
+import '../parser.dart';
+
+
 
 class searchPage extends StatefulWidget {
   const searchPage({super.key});
