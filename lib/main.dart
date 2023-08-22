@@ -52,7 +52,7 @@ class DonstuRaspState extends State<DonstuRasp> {
         ),
         body: IndexedStack(
           index: currentPageIndex,
-          children:<Widget>[
+          children: const <Widget>[
             schedulePage(),
             notesPage(),
           ],

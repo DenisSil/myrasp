@@ -17,11 +17,13 @@ class _schedulePageState extends State<schedulePage> {
   var data = {};
   int group = 43732;
   String date = DateTime.now().toString().substring(0,10);
+
   @override
   initState() {
     super.initState();
     getData(group, date).then((value) => data = value);
   }
+
   @override
   Widget build(BuildContext context) {
 
@@ -38,6 +40,7 @@ class _schedulePageState extends State<schedulePage> {
         behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
         child: SingleChildScrollView(
           child: Container(
+            padding: const EdgeInsets.only(left: 10, right: 10),
             constraints: const BoxConstraints(
               maxWidth: 600,
             ),
@@ -94,16 +97,18 @@ class _schedulePageState extends State<schedulePage> {
                     ),
                     InkWell(
                       hoverColor: Colors.white,
-                      onTap: () async {
-                        var selectedDate = await _selectDate(context, DateTime.parse('$date'));
-                        date = selectedDate;
-                        data = await getData(group, date);
-                        setState(() {
-                          data = data;
-                        });
+                      onTap:() async {
+                        var dataDate = await showDialog(context: context, builder: (context) => Alert(month: int.parse(date.substring(5,7)),year: int.parse(date.substring(0,4)),));
+                        if (dataDate  != null){
+                          date = '${dataDate.year}-${dataDate.month > 9? dataDate.month: "0${dataDate.month}"}-${dataDate.day > 9? dataDate.day: "0${dataDate.day}"}';
+                          data = await getData(group, date);
+                          setState(() {
+                            data = data;
+                          });
+                        }
                       },
-                      child: Icon(Icons.date_range, size: 35, color: Colors.black,),
-                    ),
+                      child: const Icon(Icons.calendar_month, size: 34),
+                    )
                   ],
                 ),
                 ListView.builder(
@@ -184,7 +189,7 @@ class _cardDayTemplateState extends State<cardDayTemplate> {
                   setState(() {
 
                     if(!clickCard){
-                      cardHeight = heightR(this.widget.dataOfDay.length);
+                      cardHeight = heightR(widget.dataOfDay.length);
                       Future.delayed(const Duration(milliseconds: 500), () => setState((){clickCard = true;}));
                     }else{
                       clickCard = false;
@@ -199,9 +204,9 @@ class _cardDayTemplateState extends State<cardDayTemplate> {
                     scrollDirection: Axis.vertical,
                     shrinkWrap: true,
                     padding: const EdgeInsets.only(bottom: 8),
-                    itemCount: this.widget.dataOfDay.length,
+                    itemCount: widget.dataOfDay.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return subjectCard(this.widget.dataOfDay[index]);
+                      return subjectCard(widget.dataOfDay[index]);
                     }
                 )
             ],
@@ -217,6 +222,7 @@ Widget subjectCard(Subject subjectInfo) {
   return subjectCardTemplate(subjectInfo);
 
 }
+
 class subjectCardTemplate extends StatelessWidget {
 
   Subject subjectInfo;
@@ -278,17 +284,180 @@ class subjectCardTemplate extends StatelessWidget {
   }
 }
 
+class Alert extends StatefulWidget {
 
-Future<String> _selectDate(BuildContext context, DateTime selectedDate) async {
-  DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(2022),
-      lastDate: DateTime(2024)
-  );
-  if (picked !=null && picked.toString().substring(0,10) != DateTime.now().toString().substring(0,10)){
-    return picked.toString().substring(0,10);
-  }else{
-    return selectedDate.toString().substring(0,10);
+  int year;
+  int month;
+  Alert({super.key, required this.year, required this.month});
+
+  @override
+  State<Alert> createState() => _AlertState();
+}
+
+class _AlertState extends State<Alert> {
+
+  DateTime date = DateTime.now();
+  var currentMonth;
+  var currentYear;
+  var monthNameList = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  void setDate(value){
+    setState(() {
+      date = value;
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    currentMonth = widget.month;
+    currentYear = widget.year;
+  }
+  @override
+  Widget build(BuildContext context) {
+
+
+    return Dialog(
+      alignment: Alignment.center,
+      backgroundColor: Colors.white,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration:  BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.white,
+        ),
+        width: 300,
+        height: 410,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                    onPressed: (){
+                      setState(() {
+                        if (currentMonth == 1){
+                          currentMonth = 12;
+                          currentYear--;
+                        }else{
+                          currentMonth--;
+                        }
+                      });
+                    },
+                    icon: const Icon(Icons.arrow_back)
+                ),
+                Text(monthNameList[currentMonth-1]),
+                IconButton(
+                    onPressed: (){
+                      setState(() {
+                        if (currentMonth == 12){
+                          currentMonth = 1;
+                          currentYear++;
+                        }else{
+                          currentMonth++;
+                        }
+                      });
+                    },
+                    icon: const Icon(Icons.arrow_forward)
+                ),
+              ],
+            ),
+            Expanded(
+              child: GridView.count(
+                shrinkWrap: true,
+                crossAxisCount: 7,
+                crossAxisSpacing: 5,
+                mainAxisSpacing: 5,
+                childAspectRatio: 0.9,
+                children: generate(setDate, currentYear, currentMonth),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 5),
+              child: Align(
+                alignment: Alignment.bottomRight,
+                child: ElevatedButton(
+                    onPressed: (){
+                      Navigator.pop(context, date);
+                      },
+                    child: const Text('Ok')),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }
+
+
+
+
+List<Widget> generate(dynamic func, int year, int month){
+  List<Widget> list = [];
+  DateTime lastDayOfMonth = DateTime(year, month+1, 0);
+
+  var listdays = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+  for(int i = 0;i < 7; i++){
+    list.add(Center(child: Text(listdays[i])));
+  }
+  var day = DateTime(year, month, 1);
+  var days = List<Widget>.generate(day.weekday-1, (int index) => const Center(child: Text('')));
+  list.addAll(days);
+  for(int i = 1;i < lastDayOfMonth.day+1; i++){
+    list.add(calendarDay(calendarText: '$i', function: func, date: DateTime(year, month, i),));
+  }
+
+  return list;
+}
+
+
+class calendarDay extends StatefulWidget {
+  
+  String calendarText;
+  dynamic function;
+  DateTime date;
+  calendarDay({super.key, required this.calendarText, required this.function, required this.date});
+
+  @override
+  State<calendarDay> createState() => _calendarDayState();
+}
+
+class _calendarDayState extends State<calendarDay> {
+
+  bool clickDay = false;
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Material(
+      child: InkWell(
+        onTap: (){
+          widget.function(widget.date);
+          setState(() {
+            clickDay = true;
+          });
+        },
+        customBorder: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: clickDay == false? Colors.white: Colors.grey,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: const [
+              BoxShadow(
+                  color: Colors.black,
+                  blurRadius: 1,
+                  offset: Offset(1, 1)
+              )
+            ],
+          ),
+          child: Center(child:Text(widget.calendarText)),
+        ),
+      ),
+    );
+  }
+}
+
