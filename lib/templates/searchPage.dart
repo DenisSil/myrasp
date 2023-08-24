@@ -26,6 +26,9 @@ class _searchPageState extends State<searchPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    Color? focusColor = Colors.grey;
+
     return  Scaffold(
       body: Align(
         alignment: Alignment.topCenter,
@@ -49,7 +52,8 @@ class _searchPageState extends State<searchPage> {
                     child: Container(
                       padding: const EdgeInsets.only(left: 5),
                       decoration: BoxDecoration(
-                          border: Border.all(color:Colors.black),
+                        border: Border.all(color: focusColor),
+                        borderRadius: BorderRadius.circular(10)
                       ),
                       child: Row(
                           children: [
@@ -75,6 +79,7 @@ class _searchPageState extends State<searchPage> {
                                 controller: _controller,
                                 cursorColor: Colors.black,
                                 decoration: const InputDecoration(
+                                  contentPadding: EdgeInsets.all(10),
                                   border: InputBorder.none,
                                   hintText: 'Поиск',
                                 ),
