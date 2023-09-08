@@ -2,8 +2,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 
-// https://edu.donstu.ru/api/Rasp?idGroup=50884&sdate=2023-09-05
-
 Future<Map<String,List<Subject>>> getData(int idGroup, String date) async{
   List<Subject> listSubject = [];
 
@@ -41,8 +39,11 @@ Future<Map<String,List<Subject>>> getData(int idGroup, String date) async{
 Future<Map<String,int>> getGroups() async {
   Map<String,int> groups = {};
 
-  var url = Uri.https('edu.donstu.ru', 'api/raspGrouplist',
-      {'year': '2023-2024'});
+  var url = Uri.https(
+      'edu.donstu.ru',
+      'api/raspGrouplist',
+      {'year': '2023-2024'}
+  );
 
   var response;
 

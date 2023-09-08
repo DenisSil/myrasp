@@ -1,3 +1,5 @@
+import 'dart:js_interop';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
@@ -18,7 +20,7 @@ class schedulePage extends StatefulWidget {
 
 class _schedulePageState extends State<schedulePage> {
 
-  var data = {};
+  var data;
   int group = 43732;
   String date = DateTime.now().toString().substring(0,10);
 
@@ -32,13 +34,7 @@ class _schedulePageState extends State<schedulePage> {
   Widget build(BuildContext context) {
 
     // TODO: implement build
-    return data == {}? const Center(
-      child: SpinKitFadingCircle(
-        color:Colors.black,
-        size: 40,
-      ),
-    )
-    : Align(
+    return Align(
       alignment: Alignment.topCenter,
       child: ScrollConfiguration(
         behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
@@ -70,6 +66,9 @@ class _schedulePageState extends State<schedulePage> {
                                 data = {};
                               });
                               group = groupId;
+                              setState(() {
+                                data = null;
+                              });
                               data = await getData(group, date);
                               setState(() {
                                 data = data;
@@ -100,10 +99,14 @@ class _schedulePageState extends State<schedulePage> {
                     ),
                     InkWell(
                       hoverColor: Colors.white,
+                      highlightColor: Colors.white,
                       onTap:() async {
                         var dataDate = await showDialog(context: context, builder: (context) => Alert(month: int.parse(date.substring(5,7)),year: int.parse(date.substring(0,4)),day: int.parse(date.substring(8,))));
                         if (dataDate  != null){
                           date = '${dataDate.year}-${dataDate.month > 9? dataDate.month: "0${dataDate.month}"}-${dataDate.day > 9? dataDate.day: "0${dataDate.day}"}';
+                          setState(() {
+                            data = null;
+                          });
                           data = await getData(group, date);
                           setState(() {
                             data = data;
@@ -114,15 +117,37 @@ class _schedulePageState extends State<schedulePage> {
                     )
                   ],
                 ),
-                ListView.builder(
-                    scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
-                    padding: const EdgeInsets.only(bottom: 8),
-                    itemCount: data.keys.toList().length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return cardDayTemplate( data[data.keys.toList()[index]]);
-                    }
-                ),
+                    data == null ?
+                      const Padding(
+                        padding: EdgeInsets.only(top: 30),
+                        child: SpinKitCircle(
+                          color: Colors.black,
+                          size: 50.0,
+                        ),
+                      )
+                    : data.isEmpty ?
+                        const Padding(
+                          padding: EdgeInsets.only(top: 30),
+                          child: Text(
+                            'Ничего не найдено',
+                            style: TextStyle(
+                              fontSize: 25,
+                              fontWeight: FontWeight.w500
+                            ),
+                          ),
+                        )
+                      : ListView.builder(
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          padding: const EdgeInsets.only(bottom: 8),
+                          itemCount: data.keys
+                            .toList()
+                            .length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return cardDayTemplate(data[data.keys
+                              .toList()[index]]);
+                          }
+                        )
               ],
             ),
           ),

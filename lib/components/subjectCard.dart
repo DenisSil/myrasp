@@ -30,40 +30,44 @@ class subjectCardTemplate extends StatelessWidget {
             ),
           ]
       ),
-      child:  Row(
-        children: [
-          Column(
-            children: [
-              Text('${subjectInfo.timeStart}'),
-              Container(
-                width: 30,
-                color: Colors.black,
-                height: 1,
-                margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 0),
+      child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('${subjectInfo.subjectName}', softWrap: true,),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 5.0),
+
+                      child: Text('${subjectInfo.teacher}', softWrap: true),
+                    ),
+                  ],
               ),
-              Text('${subjectInfo.timeEnd}'),
-              Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child : Text('${subjectInfo.classroom}')
-              )
-            ],
-          ),
-          Container(
-            margin: const EdgeInsets.only(left: 20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('${subjectInfo.subjectName}', softWrap: true),
-                Padding(
-                  padding: const EdgeInsets.only(top: 5.0),
-                  child: Text('${subjectInfo.teacher}', softWrap: true),
-                ),
-              ],
             ),
-          )
-        ],
-      ),
+
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: Column(
+                children: [
+                  Text('${subjectInfo.timeStart}'),
+                  Container(
+                    width: 30,
+                    color: Colors.black,
+                    height: 1,
+                    margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 0),
+                  ),
+                  Text('${subjectInfo.timeEnd}'),
+                  Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child : Text('${subjectInfo.classroom}')
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
     );
   }
 }

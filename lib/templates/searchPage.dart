@@ -138,6 +138,7 @@ class searchItem extends StatelessWidget {
       margin: const EdgeInsets.only(top: 10, left: 20, right: 20),
       child:
       InkWell(
+          borderRadius: BorderRadius.circular(10),
           focusColor: Colors.grey[500],
           onTap: (){
             Navigator.pop(context, groupId);
