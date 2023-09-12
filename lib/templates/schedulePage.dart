@@ -1,5 +1,3 @@
-import 'dart:js_interop';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
@@ -9,6 +7,7 @@ import '/components/cardDay.dart';
 import '/components/calendar.dart';
 
 import 'searchPage.dart';
+
 
 class schedulePage extends StatefulWidget {
 
@@ -21,13 +20,14 @@ class schedulePage extends StatefulWidget {
 class _schedulePageState extends State<schedulePage> {
 
   var data;
-  int group = 43732;
+  int group = 50884;
   String date = DateTime.now().toString().substring(0,10);
 
   @override
   initState() {
     super.initState();
-    getData(group, date).then((value) => data = value);
+    data = getData(group, date);
+    
   }
 
   @override
@@ -57,21 +57,16 @@ class _schedulePageState extends State<schedulePage> {
                           focusColor: Colors.grey[400],
                           onTap: ()async{
                             var groupId = await Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => const searchPage(),
+                              PageRouteBuilder(
+                                pageBuilder: (_, __, ___) => const searchPage(),
+                                transitionDuration: const Duration(milliseconds: 250),
+                                transitionsBuilder: (_, a, __, c) => FadeTransition(opacity: a, child: c),
                               ),
                             );
                             if (groupId != null){
-                              setState(() {
-                                data = {};
-                              });
                               group = groupId;
                               setState(() {
-                                data = null;
-                              });
-                              data = await getData(group, date);
-                              setState(() {
-                                data = data;
+                                data = getData(group,date);
                               });
                             }
                             },
@@ -105,11 +100,7 @@ class _schedulePageState extends State<schedulePage> {
                         if (dataDate  != null){
                           date = '${dataDate.year}-${dataDate.month > 9? dataDate.month: "0${dataDate.month}"}-${dataDate.day > 9? dataDate.day: "0${dataDate.day}"}';
                           setState(() {
-                            data = null;
-                          });
-                          data = await getData(group, date);
-                          setState(() {
-                            data = data;
+                            data = getData(group,date);
                           });
                         }
                       },
@@ -117,37 +108,39 @@ class _schedulePageState extends State<schedulePage> {
                     )
                   ],
                 ),
-                    data == null ?
-                      const Padding(
-                        padding: EdgeInsets.only(top: 30),
-                        child: SpinKitCircle(
-                          color: Colors.black,
-                          size: 50.0,
-                        ),
-                      )
-                    : data.isEmpty ?
-                        const Padding(
+
+                FutureBuilder(
+                  future: data, // a previously-obtained Future<String> or null
+                  builder: (BuildContext context, AsyncSnapshot<Map<String,List<Subject>>> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Padding(
                           padding: EdgeInsets.only(top: 30),
-                          child: Text(
-                            'Ничего не найдено',
-                            style: TextStyle(
-                              fontSize: 25,
-                              fontWeight: FontWeight.w500
-                            ),
+                          child: SpinKitCircle(
+                            color: Colors.black,
+                            size: 50.0,
                           ),
-                        )
-                      : ListView.builder(
+                        );
+                      }else if(snapshot.connectionState == ConnectionState.done){
+                        return ListView.builder(
                           scrollDirection: Axis.vertical,
                           shrinkWrap: true,
                           padding: const EdgeInsets.only(bottom: 8),
-                          itemCount: data.keys
-                            .toList()
-                            .length,
+                          itemCount: snapshot.data!.keys
+                              .toList()
+                              .length,
                           itemBuilder: (BuildContext context, int index) {
-                            return cardDayTemplate(data[data.keys
-                              .toList()[index]]);
+                          return cardDayTemplate(snapshot.data![snapshot.data!.keys
+                              .toList()[index]]!);
                           }
-                        )
+                        );
+
+                    }else if (snapshot.hasError){
+                        return Text(snapshot.error.toString());
+                    }else{
+                        return Text('Нет данных');
+                      }
+                  }
+                  )
               ],
             ),
           ),

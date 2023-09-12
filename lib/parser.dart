@@ -1,13 +1,33 @@
 import 'dart:convert';
+import 'dart:isolate';
 import 'package:http/http.dart' as http;
 
+void checkInternetContection(SendPort internetConnectionPort) async {
+
+  var url = Uri.https('google.com');
+
+
+  final stopwatch = Stopwatch();
+
+  stopwatch.start();
+  while (true){
+    if (stopwatch.elapsedMilliseconds > 1000) {
+      try {
+        final response = await http.get(url);
+        internetConnectionPort.send(true);
+      } catch (e) {
+        internetConnectionPort.send(false);
+      }
+    }
+  }
+}
 
 Future<Map<String,List<Subject>>> getData(int idGroup, String date) async{
   List<Subject> listSubject = [];
 
   Map<String,List<Subject>> listSubjects = {};
 
-  var url = Uri.https('edu.donstu.ru', 'api/Rasp', {'idGroup':'$idGroup','sdate':'$date'});
+  var url = Uri.https('edu.donstu.ru', 'api/Rasp', {'idGroup':'$idGroup','sdate':date});
 
   final response = await http.get(url);
 
@@ -23,20 +43,20 @@ Future<Map<String,List<Subject>>> getData(int idGroup, String date) async{
                             subject['преподаватель'],
                             subject['аудитория']));
   });
-
-
   listSubject.forEach((subject) {
-    if (listSubjects.keys.contains(subject.data)){
+    if (listSubjects!.keys.contains(subject.data)) {
       listSubjects[subject.data]!.add(subject);
-    }else{
-      listSubjects[subject.data] = [subject];
+    } else {
+      if(subject.subjectName != "лек Военная кафедра"){
+        listSubjects[subject.data] = [subject];
+      }
     }
   });
   return listSubjects;
 }
 
 
-Future<Map<String,int>> getGroups() async {
+Future<Map<String,int>?> getGroups() async {
   Map<String,int> groups = {};
 
   var url = Uri.https(
@@ -45,9 +65,7 @@ Future<Map<String,int>> getGroups() async {
       {'year': '2023-2024'}
   );
 
-  var response;
-
-  response = await http.get(url);
+  var response = await http.get(url);
 
   final data = jsonDecode(response.body)['data'];
 
@@ -71,20 +89,14 @@ class Subject{
   var classroom;
 
   Subject(data,
-    String timeStart,
-    String timeEnd,
-    String dayOfTheWeek,
-    String subjectName,
-    String teacher,
-    String classroom,
+    String this.timeStart,
+    String this.timeEnd,
+    String this.dayOfTheWeek,
+    String this.subjectName,
+    String this.teacher,
+    String this.classroom,
       ){
     this.data = data.substring(5,10).replaceFirst('-','.');
-    this.timeStart = timeStart;
-    this.timeEnd = timeEnd;
-    this.dayOfTheWeek = dayOfTheWeek;
-    this.subjectName = subjectName;
-    this.teacher = teacher;
-    this.classroom = classroom;
   }
 
 }
