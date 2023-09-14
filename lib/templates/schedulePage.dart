@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'dart:isolate';
 
 import '/parser.dart';
 
@@ -20,27 +21,40 @@ class schedulePage extends StatefulWidget {
 class _schedulePageState extends State<schedulePage> {
 
   var data;
+  String searchType = "группы";
+  String name = "ВКБ34";
   int group = 50884;
+  bool internetConnectionState = true;
   String date = DateTime.now().toString().substring(0,10);
+
+  void intenetConnectionLoop() async{
+    ReceivePort internetConnectionPort = ReceivePort();
+    Isolate internetConnection = await Isolate.spawn(checkInternetContection, internetConnectionPort.sendPort);
+    internetConnectionPort.listen((message) {
+      setState(() {
+        internetConnectionState = message;
+      });
+    });
+  }
 
   @override
   initState() {
     super.initState();
+    intenetConnectionLoop();
     data = getData(group, date);
-    
   }
 
   @override
   Widget build(BuildContext context) {
 
     // TODO: implement build
-    return Align(
+    return internetConnectionState == true? Align(
       alignment: Alignment.topCenter,
       child: ScrollConfiguration(
         behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
         child: SingleChildScrollView(
           child: Container(
-            padding: const EdgeInsets.only(left: 10, right: 10),
+            margin: const EdgeInsets.only(left: 20, right: 20, top: 30),
             constraints: const BoxConstraints(
               maxWidth: 600,
             ),
@@ -50,7 +64,7 @@ class _schedulePageState extends State<schedulePage> {
                   children: [
                     Expanded(
                       child: Container(
-                        margin: const EdgeInsets.only(top: 10, left: 20, right: 5),
+                        margin: const EdgeInsets.only(top: 10, right: 5),
                         child:
                         InkWell(
                           borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -65,9 +79,11 @@ class _schedulePageState extends State<schedulePage> {
                             );
                             if (groupId != null){
                               group = groupId;
-                              setState(() {
-                                data = getData(group,date);
-                              });
+                              if (internetConnectionState == true){
+                                setState(() {
+                                  data = getData(group,date);
+                                });
+                              }
                             }
                             },
                           child:
@@ -99,19 +115,20 @@ class _schedulePageState extends State<schedulePage> {
                         var dataDate = await showDialog(context: context, builder: (context) => Alert(month: int.parse(date.substring(5,7)),year: int.parse(date.substring(0,4)),day: int.parse(date.substring(8,))));
                         if (dataDate  != null){
                           date = '${dataDate.year}-${dataDate.month > 9? dataDate.month: "0${dataDate.month}"}-${dataDate.day > 9? dataDate.day: "0${dataDate.day}"}';
-                          setState(() {
-                            data = getData(group,date);
-                          });
+                          if (internetConnectionState == true){
+                            setState(() {
+                              data = getData(group,date);
+                            });
+                          }
                         }
                       },
                       child: const Icon(Icons.calendar_month, size: 34),
                     )
                   ],
                 ),
-
                 FutureBuilder(
                   future: data, // a previously-obtained Future<String> or null
-                  builder: (BuildContext context, AsyncSnapshot<Map<String,List<Subject>>> snapshot) {
+                  builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>?> snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Padding(
                           padding: EdgeInsets.only(top: 30),
@@ -121,22 +138,45 @@ class _schedulePageState extends State<schedulePage> {
                           ),
                         );
                       }else if(snapshot.connectionState == ConnectionState.done){
-                        return ListView.builder(
-                          scrollDirection: Axis.vertical,
-                          shrinkWrap: true,
-                          padding: const EdgeInsets.only(bottom: 8),
-                          itemCount: snapshot.data!.keys
-                              .toList()
-                              .length,
-                          itemBuilder: (BuildContext context, int index) {
-                          return cardDayTemplate(snapshot.data![snapshot.data!.keys
-                              .toList()[index]]!);
-                          }
-                        );
+                        return snapshot.data != null? Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10, bottom: 10),
+                              child: Text("Расписание ${snapshot.data!['type']} ${snapshot.data!['name']}",
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w600
+                                          )
+                              ),
+                            ),
+                            ListView.builder(
+                              scrollDirection: Axis.vertical,
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              padding: const EdgeInsets.only(bottom: 8),
+                              itemCount: snapshot.data!['listSubjects'].keys
+                                  .toList()
+                                  .length,
+                              itemBuilder: (BuildContext context, int index) {
+                              return cardDayTemplate(snapshot.data!['listSubjects'][snapshot.data!['listSubjects'].keys
+                                  .toList()[index]]!, '${DateTime.now().month > 9?DateTime.now().month: "0${DateTime.now().month}"}.${DateTime.now().day}');
+                              }
+                            ),
+                          ],
+                        ): const Padding(
+                    padding: EdgeInsets.only(top: 30),
+                    child: Text('нет данных',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  decoration: TextDecoration.none,
+                                  fontSize: 20,
+                                )
+                    )
+                    );
 
-                    }else if (snapshot.hasError){
+                      }else if (snapshot.hasError) {
                         return Text(snapshot.error.toString());
-                    }else{
+                      }else{
                         return Text('Нет данных');
                       }
                   }
@@ -145,6 +185,14 @@ class _schedulePageState extends State<schedulePage> {
             ),
           ),
         ),
+      ),
+    ): const Center(
+        child: Text('Нет интернета',
+        style: TextStyle(
+          color: Colors.black,
+          decoration: TextDecoration.none,
+          fontSize: 20,
+        )
       ),
     );
   }

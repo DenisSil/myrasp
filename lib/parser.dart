@@ -1,37 +1,61 @@
 import 'dart:convert';
 import 'dart:isolate';
+import 'dart:io';
 import 'package:http/http.dart' as http;
+
 
 void checkInternetContection(SendPort internetConnectionPort) async {
 
-  var url = Uri.https('google.com');
-
-
   final stopwatch = Stopwatch();
-
   stopwatch.start();
   while (true){
-    if (stopwatch.elapsedMilliseconds > 1000) {
+    if (stopwatch.elapsedMilliseconds > 3000) {
+      stopwatch.reset();
       try {
-        final response = await http.get(url);
-        internetConnectionPort.send(true);
-      } catch (e) {
+        final result = await InternetAddress.lookup('example.com');
+        if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+          internetConnectionPort.send(true);
+        }
+      } on SocketException catch (_) {
         internetConnectionPort.send(false);
       }
     }
   }
 }
 
-Future<Map<String,List<Subject>>> getData(int idGroup, String date) async{
+Future<Map<String, dynamic>> getData(int id, String date) async{
   List<Subject> listSubject = [];
-
+  var url;
+  var type;
   Map<String,List<Subject>> listSubjects = {};
 
-  var url = Uri.https('edu.donstu.ru', 'api/Rasp', {'idGroup':'$idGroup','sdate':date});
+  if (id > 50000 && id.toString().length == 5) {
+    url = Uri.https(
+        'edu.donstu.ru', 'api/Rasp', {'idGroup': '$id', 'sdate': date});
+    type = 'группы';
+  }else if(id.toString().length == 9) {
+    url = Uri.https(
+        'edu.donstu.ru', 'api/Rasp', {'idAudLine': '$id', 'sdate': date});
+    type = 'аудитории';
+  }else {
+    url = Uri.https(
+        'edu.donstu.ru', 'api/Rasp', {'idTeacher': '$id', 'sdate': date});
+    type = 'преподователя';
 
+  }
   final response = await http.get(url);
+  var responseJson = jsonDecode(response.body)['data'];
+  var name;
+  switch(type){
+    case 'группы':
+      name = responseJson['info']['group']['name'];
+    case 'аудитории':
+      name = responseJson['rasp'][0]['аудитория'];
+    case 'преподователя':
+      name = responseJson['info']['prepod']['name'];
+  }
 
-  final data = jsonDecode(response.body)['data']['rasp'];
+  final data = responseJson['rasp'];
 
   data.forEach((subject){
 
@@ -52,28 +76,56 @@ Future<Map<String,List<Subject>>> getData(int idGroup, String date) async{
       }
     }
   });
-  return listSubjects;
+
+  var getDataResponse = {'name':name, 'type':type, 'listSubjects': listSubjects};
+  return getDataResponse;
 }
 
 
-Future<Map<String,int>?> getGroups() async {
-  Map<String,int> groups = {};
-
-  var url = Uri.https(
+Future<Map<String,int>?> getDataForSearch() async {
+  Map<String,int> dataForSearch = {};
+  var url_groups = Uri.https(
       'edu.donstu.ru',
       'api/raspGrouplist',
       {'year': '2023-2024'}
   );
 
-  var response = await http.get(url);
+  var response_groups = await http.get(url_groups);
+  final data_groups = jsonDecode(response_groups.body)['data'];
 
-  final data = jsonDecode(response.body)['data'];
 
-
-  data.forEach((group){
-    groups[group['name']] = group['id'];
+  data_groups.forEach((group){
+    dataForSearch[group['name']] = group['id'];
   });
-  return groups;
+
+
+  var url_audit = Uri.https(
+      'edu.donstu.ru',
+      'api/raspAudlist',
+      {'year': '2023-2024'}
+  );
+
+  var response_audit = await http.get(url_audit);
+
+  final data_audit = jsonDecode(response_audit.body)['data'];
+  data_audit.forEach((audit){
+    dataForSearch[audit['name']] = audit['id'];
+  });
+
+  var url_teacher = Uri.https(
+      'edu.donstu.ru',
+      'api/raspTeacherlist',
+      {'year': '2023-2024'}
+  );
+
+  var response_teacher = await http.get(url_teacher);
+
+  final data_teacher = jsonDecode(response_teacher.body)['data'];
+  data_teacher.forEach((teacher){
+    dataForSearch[teacher['name']] = teacher['id'];
+  });
+
+  return dataForSearch;
 
 }
 

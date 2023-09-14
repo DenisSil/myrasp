@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '/parser.dart';
 
 Widget subjectCard(Subject subjectInfo) {
@@ -17,7 +16,7 @@ class subjectCardTemplate extends StatelessWidget {
     return Container(
       height: 100,
       margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.only(top:5, left: 10, right: 10, bottom: 5),
       decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(4),
@@ -37,11 +36,20 @@ class subjectCardTemplate extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${subjectInfo.subjectName}', softWrap: true,),
+                    Text('${subjectInfo.subjectName}', softWrap: true,
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600
+                      ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.only(top: 5.0),
 
-                      child: Text('${subjectInfo.teacher}', softWrap: true),
+                      child: Text('${subjectInfo.teacher}',
+                          softWrap: true,
+                        style: const TextStyle(
+                          fontSize: 13,
+                        ),),
                     ),
                   ],
               ),

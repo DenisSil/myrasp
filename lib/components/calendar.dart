@@ -18,11 +18,7 @@ class _AlertState extends State<Alert> {
   var currentMonth;
   var currentYear;
   var monthNameList = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-  void setDate(value){
-    setState(() {
-      date = value;
-    });
-  }
+
 
   @override
   void initState() {
@@ -35,6 +31,11 @@ class _AlertState extends State<Alert> {
   @override
   Widget build(BuildContext context) {
 
+    void setDate(value) {
+      setState(() {
+        date = value;
+      });
+    }
 
     return Dialog(
       alignment: Alignment.center,
@@ -182,8 +183,6 @@ class calendarDay extends StatefulWidget {
 
 class _calendarDayState extends State<calendarDay> {
 
-  Color? color = Colors.white;
-
   @override
   Widget build(BuildContext context) {
 
@@ -196,20 +195,9 @@ class _calendarDayState extends State<calendarDay> {
         customBorder: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
-        child: MouseRegion(
-          onHover: (e){
-            setState(() {
-              color = Colors.grey[300];
-            });
-          },
-          onExit: (e){
-            setState(() {
-              color = Colors.white;
-            });
-          },
-          child: Container(
+        child: Container(
             decoration: BoxDecoration(
-              color: widget.isSelectedDay == true? Colors.amber:color,
+              color: widget.isSelectedDay == true? Colors.amber:Colors.white,
               borderRadius: BorderRadius.circular(8),
               boxShadow: const [
                 BoxShadow(
@@ -223,7 +211,6 @@ class _calendarDayState extends State<calendarDay> {
             child: Center(child:Text(widget.calendarText)),
           ),
         ),
-      ),
     );
   }
 }

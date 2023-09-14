@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../parser.dart';
-
-
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class searchPage extends StatefulWidget {
   const searchPage({super.key});
@@ -14,14 +13,18 @@ class _searchPageState extends State<searchPage> {
 
   final TextEditingController _controller = new TextEditingController();
 
-  var groups;
+  dynamic groups = null;
   List<List<dynamic>> searchResult = [];
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    groups = getGroups().then((value) => groups = value);
+    getDataForSearch().then((value){
+      setState(() {
+        groups = value;
+      });
+    });
   }
 
   @override
@@ -30,9 +33,10 @@ class _searchPageState extends State<searchPage> {
     Color? focusColor = Colors.grey;
 
     return  Scaffold(
-      body: Align(
+      body: groups != null?Align(
         alignment: Alignment.topCenter,
         child: Container(
+          margin: const EdgeInsets.only(top: 30),
           padding: const EdgeInsets.only(top:10, right: 10),
             constraints: const BoxConstraints(
             maxWidth: 600,
@@ -63,7 +67,7 @@ class _searchPageState extends State<searchPage> {
                                   if (search.length >= 2){
                                     searchResult = [];
                                     groups.keys.toList().forEach((group){
-                                      if (group.contains(search)){
+                                      if (group.toString().toLowerCase().contains(search.toLowerCase())){
                                         searchResult.add([group,groups[group]]);
                                       }
                                     });
@@ -81,7 +85,7 @@ class _searchPageState extends State<searchPage> {
                                 decoration: const InputDecoration(
                                   contentPadding: EdgeInsets.all(10),
                                   border: InputBorder.none,
-                                  hintText: 'Поиск',
+                                  hintText: 'Введите группу, аудиторию, или имя преподователя',
                                 ),
                               ),
                             ),
@@ -121,8 +125,15 @@ class _searchPageState extends State<searchPage> {
             ],
           ),
         ),
-      ),
-    );
+      )
+          : const Align(
+        alignment: Alignment.center,
+        child: SpinKitCircle(
+            color: Colors.black,
+            size: 50.0,
+          )
+        )
+      );
   }
 }
 

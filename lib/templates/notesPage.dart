@@ -17,6 +17,7 @@ class _notesPageState extends State<notesPage> {
     return Align(
         alignment: Alignment.center,
         child: Container(
+          margin: const EdgeInsets.only(top:30),
           padding: const EdgeInsets.only(top: 20),
           constraints: const BoxConstraints(
             maxWidth: 600,

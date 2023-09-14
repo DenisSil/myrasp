@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import 'dart:isolate';
 
-import '../parser.dart';
 
 import 'templates/schedulePage.dart';
 import 'templates/notesPage.dart';
-import 'templates/InternetConnectionIsFalse.dart';
 
 void main() => runApp(const DonstuRasp());
-
 
 class DonstuRasp extends StatefulWidget {
 
@@ -21,27 +17,17 @@ class DonstuRasp extends StatefulWidget {
 class DonstuRaspState extends State<DonstuRasp> {
 
   int currentPageIndex = 0;
-  bool internetConnectionState = true;
 
-  void intenetConnectionLoop() async{
-    ReceivePort internetConnectionPort = ReceivePort();
-    Isolate internetConnection = await Isolate.spawn(checkInternetContection, internetConnectionPort.sendPort);
-    internetConnectionPort.listen((message) {
-      setState(() {
-        internetConnectionState = message; 
-      });  
-    });
-  }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    intenetConnectionLoop();
   }
 
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
       home: Scaffold(
         bottomNavigationBar: NavigationBar(
@@ -53,7 +39,6 @@ class DonstuRaspState extends State<DonstuRasp> {
                     currentPageIndex = index;
                 });
             },
-
           labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
           selectedIndex: currentPageIndex,
           destinations: const <Widget>[
@@ -75,7 +60,7 @@ class DonstuRaspState extends State<DonstuRasp> {
             notesPage(),
           ],
         )
-      ),
+      )
     );
   }
 }

@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "donrasp" "\0"
+            VALUE "FileDescription", "myrasp" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "donrasp" "\0"
+            VALUE "InternalName", "myrasp" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2023 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "donrasp.exe" "\0"
-            VALUE "ProductName", "donrasp" "\0"
+            VALUE "OriginalFilename", "myrasp.exe" "\0"
+            VALUE "ProductName", "myrasp" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

@@ -6,7 +6,8 @@ import 'subjectCard.dart';
 class cardDayTemplate extends StatefulWidget {
 
   List<Subject> dataOfDay;
-  cardDayTemplate(this.dataOfDay, {super.key});
+  String todayDay;
+  cardDayTemplate(this.dataOfDay, this.todayDay, {super.key});
 
   @override
   State<cardDayTemplate> createState() => _cardDayTemplateState();
@@ -17,9 +18,20 @@ class _cardDayTemplateState extends State<cardDayTemplate> {
   bool clickCard = false;
   double cardHeight = 60;
   double heightR(cardsCount){
-    return (60+(cardsCount*145)+20).toDouble();
+    return (60+(cardsCount*140)+20).toDouble();
   }
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setState(() {
+      if(widget.dataOfDay[0].data == widget.todayDay){
+        cardHeight = heightR(widget.dataOfDay.length);
+        clickCard = true;
+      }
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
@@ -27,7 +39,7 @@ class _cardDayTemplateState extends State<cardDayTemplate> {
         height: cardHeight,
         duration: const Duration(milliseconds: 500),
         child: Container(
-          margin: const EdgeInsets.only(top: 10, left: 20),
+          margin: const EdgeInsets.only(top: 10),
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
               color: Colors.white,
@@ -47,7 +59,7 @@ class _cardDayTemplateState extends State<cardDayTemplate> {
                 child:  Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('${this.widget.dataOfDay[0].data} - ${this.widget.dataOfDay[0].dayOfTheWeek}',
+                    Text('${widget.dataOfDay[0].data} - ${widget.dataOfDay[0].dayOfTheWeek}',
                         style: const TextStyle(
                           color: Colors.black,
                           decoration: TextDecoration.none,
@@ -76,6 +88,7 @@ class _cardDayTemplateState extends State<cardDayTemplate> {
                 ListView.builder(
                     scrollDirection: Axis.vertical,
                     shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
                     padding: const EdgeInsets.only(bottom: 8),
                     itemCount: widget.dataOfDay.length,
                     itemBuilder: (BuildContext context, int index) {
