@@ -18,12 +18,6 @@ class DonstuRaspState extends State<DonstuRasp> {
   int currentPageIndex = 0;
 
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
 
     return MaterialApp(

@@ -168,21 +168,20 @@ class _schedulePageState extends State<schedulePage> {
                             ),
                           ],
                         ): const Padding(
-                    padding: EdgeInsets.only(top: 30),
-                    child: Text('нет данных',
+                            padding: EdgeInsets.only(top: 30),
+                            child: Text('нет данных',
                                 style: TextStyle(
                                   color: Colors.black,
                                   decoration: TextDecoration.none,
                                   fontSize: 20,
                                 )
-                    )
-                    );
-
-                      }else if (snapshot.hasError) {
-                        return Text(snapshot.error.toString());
-                      }else{
-                        return Text('Нет данных');
-                      }
+                              )
+                            );
+                        }else if (snapshot.hasError) {
+                          return Text(snapshot.error.toString());
+                        }else{
+                          return const Text('Нет данных');
+                        }
                   }
                   )
               ],
