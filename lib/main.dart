@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 import 'templates/schedulePage.dart';
 import 'templates/notesPage.dart';
 
@@ -17,7 +16,6 @@ class DonstuRasp extends StatefulWidget {
 class DonstuRaspState extends State<DonstuRasp> {
 
   int currentPageIndex = 0;
-
 
   @override
   void initState() {

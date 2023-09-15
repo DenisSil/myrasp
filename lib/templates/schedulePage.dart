@@ -24,6 +24,7 @@ class _schedulePageState extends State<schedulePage> {
   String searchType = "группы";
   String name = "ВКБ34";
   int group = 50884;
+  var searchData;
   bool internetConnectionState = true;
   String date = DateTime.now().toString().substring(0,10);
 
@@ -42,6 +43,9 @@ class _schedulePageState extends State<schedulePage> {
     super.initState();
     intenetConnectionLoop();
     data = getData(group, date);
+    getDataForSearch().then((value){
+      searchData = value;
+    });
   }
 
   @override
