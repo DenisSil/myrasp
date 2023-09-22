@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'dart:isolate';
 
-import '/parser.dart';
+import '/backend/parser.dart';
 
 import '/components/cardDay.dart';
 import '/components/calendar.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '/parser.dart';
+import '../backend/parser.dart';
 
 Widget subjectCard(Subject subjectInfo) {
   return subjectCardTemplate(subjectInfo);
@@ -14,7 +14,6 @@ class subjectCardTemplate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 100,
       margin: const EdgeInsets.all(20),
       padding: const EdgeInsets.only(top:5, left: 10, right: 10, bottom: 5),
       decoration: BoxDecoration(

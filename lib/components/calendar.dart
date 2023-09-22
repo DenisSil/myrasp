@@ -86,6 +86,7 @@ class _AlertState extends State<Alert> {
             Expanded(
               child: GridView.count(
                 shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(), // убрать скролл
                 crossAxisCount: 7,
                 crossAxisSpacing: 5,
                 mainAxisSpacing: 5,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../parser.dart';
+import '/backend/parser.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class searchPage extends StatefulWidget {
@@ -174,7 +174,7 @@ class searchItem extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10)
             ),
             padding: const EdgeInsets.all(10),
-            child: Text('$groupName',
+            child: Text(groupName,
                       style: TextStyle(
                         color: Colors.grey[600]
                       )

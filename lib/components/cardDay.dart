@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '/parser.dart';
+import '../backend/parser.dart';
 
 import 'subjectCard.dart';
 
