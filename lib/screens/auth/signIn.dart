@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:provider/provider.dart';
 import '/screens/notes/notesPage.dart';
-
 import '/backend/supabase.dart';
+import '/backend/User.dart';
+
 
 class signIn extends StatefulWidget {
   const signIn({super.key});
@@ -14,7 +17,7 @@ class _signInState extends State<signIn> {
 
   var _loginFieldController;
   var _passwordFieldController;
-
+  bool isLoading = false;
   var supabase;
 
   @override
@@ -49,6 +52,7 @@ class _signInState extends State<signIn> {
                     maxWidth: 300,
                   ),
                   child: TextField(
+                    cursorColor: Colors.orange[500],
                     controller: _loginFieldController,
                     decoration: const InputDecoration(
                       focusedBorder: OutlineInputBorder(
@@ -73,6 +77,8 @@ class _signInState extends State<signIn> {
                       maxWidth: 300,
                     ),
                     child: TextField(
+                      cursorColor: Colors.orange[500],
+                      obscureText: true,
                       controller: _passwordFieldController,
                       decoration: const InputDecoration(
                         focusedBorder: OutlineInputBorder(
@@ -95,24 +101,35 @@ class _signInState extends State<signIn> {
                 child: SizedBox(
                   width: 300,
                   height: 40,
-                  child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange[500],
-                      ),
-                      onPressed: () async{
-                        var user = await supabase.signIn(_loginFieldController.text,_passwordFieldController.text);
-                        if(user != null){
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (context) => const notesPage())
-                          );
-                        }
-                      },
-                      child: const Text('Войти',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                      )
+                  child: Consumer<GetUser>(
+                    builder: (context, notifier, child){
+                      return ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange[500],
+                        ),
+                        onPressed: () async{
+                            setState(() {
+                              isLoading = true;
+                            });
+                            var res = await supabase.signIn(_loginFieldController.text,_passwordFieldController.text);
+                            if(res != null){
+                              notifier.addUser(res.user);
+                            }
+                            setState(() {
+                              isLoading = false;
+                            });
+                        },
+                        child: isLoading == false? const Text('Войти',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                        ):  const SpinKitFadingCircle(
+                          color: Colors.white,
+                          size: 40.0,
+                        )
+                      );
+                    }
                   ),
                 ),
               )

@@ -1,18 +1,22 @@
-
-
 import 'package:flutter/material.dart';
+import 'package:myrasp/screens/auth/signIn.dart';
 import '/screens/notes/notesPage.dart';
-
 import 'backend/supabase.dart';
-
-
+import 'package:provider/provider.dart';
 import 'screens/schedule/schedulePage.dart';
-import 'screens/auth/signIn.dart';
+import 'backend/User.dart';
 
 
-void main() {
-  supabaseInit();
-  runApp(const MyRasp());
+
+
+void main() async{
+  await supabaseInit();
+  runApp(
+      ChangeNotifierProvider(
+        create: (context) => GetUser(),
+          builder: (context, provider) => MyRasp()
+      )
+  );
 }
 
 class MyRasp extends StatefulWidget {
@@ -32,20 +36,17 @@ class MyRaspState extends State<MyRasp> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    Future.delayed(const Duration(seconds: 2), (){
-      setState(() {
-        user = SupabaseReferense().getUser();
-      });
-    });
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => Provider.of<GetUser>(context, listen: false).addUser(SupabaseReferense().getUser()));
 
 
   }
 
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       home: Scaffold(
+        backgroundColor: Colors.white,
           bottomNavigationBar: NavigationBar(
             height: 70,
             indicatorColor: Colors.orange[500],
@@ -69,14 +70,18 @@ class MyRaspState extends State<MyRasp> {
               ),
             ],
           ),
-          body: IndexedStack(
-            index: currentPageIndex,
-            children: const <Widget>[
-              schedulePage(),
-              notesPage(),
-            ],
-          )
+          body: Consumer<GetUser>(
+              builder:(context, notifier, child) {
+                return IndexedStack(
+                  index: currentPageIndex,
+                  children: <Widget>[
+                    const schedulePage(),
+                    notifier.user == null? const signIn(): const notesPage()
+                  ],
+                );
+              }
       ),
+      )
     );
   }
 }

@@ -33,6 +33,7 @@ class SupabaseReferense{
         email: email,
         password: password,
       );
+      print(user);
       return user;
     }catch (e){
       return null;
@@ -41,6 +42,10 @@ class SupabaseReferense{
 
   dynamic getUser(){
     return supabaseReferense.auth.currentUser;
+  }
+
+  void userOut() async{
+    await supabaseReferense.auth.signOut();
   }
 
 }

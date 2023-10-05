@@ -18,7 +18,7 @@ class _cardDayTemplateState extends State<cardDayTemplate> {
   bool clickCard = false;
   double cardHeight = 60;
   double heightR(cardsCount){
-    return (60+(cardsCount*140)+20).toDouble();
+    return (60+(cardsCount*140)+50).toDouble();
   }
 
   @override
@@ -31,6 +31,7 @@ class _cardDayTemplateState extends State<cardDayTemplate> {
         clickCard = true;
       }
     });
+
   }
   @override
   Widget build(BuildContext context) {

@@ -47,7 +47,7 @@ class _AlertState extends State<Alert> {
           color: Colors.white,
         ),
         width: 300,
-        height: 410,
+        height: 430,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -85,8 +85,8 @@ class _AlertState extends State<Alert> {
             ),
             Expanded(
               child: GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(), // убрать скролл
+                shrinkWrap: false,
+                // убрать скролл
                 crossAxisCount: 7,
                 crossAxisSpacing: 5,
                 mainAxisSpacing: 5,
@@ -99,7 +99,7 @@ class _AlertState extends State<Alert> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text('${date.year}.${date.month > 9? date.month: "0${date.month}"}.${date.day > 9? date.day: "0${date.day}"}'),
+                  Text('${date.day > 9? date.day: "0${date.day}"}.${date.month > 9? date.month: "0${date.month}"}.${date.year}'),
                   Align(
                     alignment: Alignment.bottomRight,
                     child: ElevatedButton(

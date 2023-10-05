@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:myrasp/backend/supabase.dart';
-import 'package:myrasp/screens/auth/signIn.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-
+import '/backend/supabase.dart';
+import 'package:provider/provider.dart';
+import '/backend/User.dart';
 class notesPage extends StatefulWidget{
+
+
   const notesPage({super.key});
 
   @override
@@ -12,10 +13,12 @@ class notesPage extends StatefulWidget{
 
 class _notesPageState extends State<notesPage> {
 
+  var supabase;
 
   @override
   initState(){
     super.initState();
+    supabase = SupabaseReferense();
   }
 
   List<String> notes = [];
@@ -23,16 +26,32 @@ class _notesPageState extends State<notesPage> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return Scaffold(
-      body: Align(
+    return Align(
             alignment: Alignment.center,
             child: Container(
+              padding: const EdgeInsets.only(left: 10, right: 10),
               margin: const EdgeInsets.only(top:50),
               constraints: const BoxConstraints(
                 maxWidth: 600,
               ),
               child:Column(
                 children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        splashColor: Colors.white,
+                        hoverColor: Colors.white,
+                        highlightColor: Colors.white,
+                        onPressed: () async{
+                            Provider.of<GetUser>(context, listen: false).cleanUser();
+                            supabase.userOut();
+                        },
+                        icon: const Icon(Icons.exit_to_app),
+                        iconSize: 20,
+                      )
+                    ],
+                  ),
                   Container(
                     child: ListView.builder(
                         scrollDirection: Axis.vertical,
@@ -92,7 +111,6 @@ class _notesPageState extends State<notesPage> {
                     ),
                   )
                 ],
-              ),
             )
       ),
     );
