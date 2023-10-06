@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import '/backend/supabase.dart';
-import 'package:provider/provider.dart';
-import '/backend/User.dart';
-class notesPage extends StatefulWidget{
+import 'package:localstore/localstore.dart';
+import '/backend/Notes.dart';
 
+class notesPage extends StatefulWidget{
 
   const notesPage({super.key});
 
@@ -13,15 +12,28 @@ class notesPage extends StatefulWidget{
 
 class _notesPageState extends State<notesPage> {
 
-  var supabase;
+  List<Notes> notes = [];
 
   @override
   initState(){
     super.initState();
-    supabase = SupabaseReferense();
+
+    final db = Localstore.instance;
+
+    db.collection('notes').get().then((value){
+      if(value != null){
+        value.forEach((key, value) {
+          notes.add(Notes(id: value['id'], message: value['message']));
+        });
+        setState(() {
+          notes = notes;
+        });
+      }
+    });
+
   }
 
-  List<String> notes = [];
+
   final TextEditingController _controller = TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -36,22 +48,6 @@ class _notesPageState extends State<notesPage> {
               ),
               child:Column(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        splashColor: Colors.white,
-                        hoverColor: Colors.white,
-                        highlightColor: Colors.white,
-                        onPressed: () async{
-                            Provider.of<GetUser>(context, listen: false).cleanUser();
-                            supabase.userOut();
-                        },
-                        icon: const Icon(Icons.exit_to_app),
-                        iconSize: 20,
-                      )
-                    ],
-                  ),
                   Container(
                     child: ListView.builder(
                         scrollDirection: Axis.vertical,
@@ -67,12 +63,13 @@ class _notesPageState extends State<notesPage> {
                               child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children:[
-                                    Text( notes[index],
+                                    Text( notes[index].message,
                                         style: const TextStyle(
                                           fontSize: 16,
                                         )
                                     ),
                                     IconButton(onPressed: (){
+                                      notes[index].delete_notes();
                                       setState(() {
                                         notes.removeAt(index);
                                       });
@@ -99,7 +96,15 @@ class _notesPageState extends State<notesPage> {
                       controller: _controller,
                       onSubmitted: (value){
                         setState(() {
-                          notes.add(value);
+                          final db = Localstore.instance;
+                          final id = db.collection('notes').doc().id;
+                          db.collection('notes').doc(id).set({
+                            'id':id,
+                            'message': _controller.text
+                          });
+                          setState(() {
+                            notes.add(Notes(id:id,message: _controller.text));
+                          });
                           _controller.clear();
                         });
                       },
