@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import '/screens/notes/notesPage.dart';
 import 'screens/schedule/schedulePage.dart';
-
+import 'backend/GlobalContext.dart';
 
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(MyRasp());
+  runApp(const MyRasp());
 }
 
 class MyRasp extends StatefulWidget {
@@ -24,6 +24,7 @@ class MyRaspState extends State<MyRasp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: GlobalNavigator.navigatorKey,
       home: Scaffold(
         backgroundColor: Colors.white,
           bottomNavigationBar: NavigationBar(

@@ -18,7 +18,7 @@ class _cardDayTemplateState extends State<cardDayTemplate> {
   bool clickCard = false;
   double cardHeight = 60;
   double heightR(cardsCount){
-    return (60+(cardsCount*140)+50).toDouble();
+    return (60+(cardsCount*155)+50).toDouble();
   }
 
   @override
@@ -86,7 +86,9 @@ class _cardDayTemplateState extends State<cardDayTemplate> {
                 },
               ),
               if (clickCard)
-                ListView.builder(
+                Padding(
+                  padding: EdgeInsets.all(10),
+                  child: ListView.builder(
                     scrollDirection: Axis.vertical,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -95,6 +97,7 @@ class _cardDayTemplateState extends State<cardDayTemplate> {
                     itemBuilder: (BuildContext context, int index) {
                       return subjectCard(widget.dataOfDay[index]);
                     }
+                  )
                 )
             ],
           ),

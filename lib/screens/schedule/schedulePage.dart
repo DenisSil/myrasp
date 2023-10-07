@@ -163,7 +163,7 @@ class _schedulePageState extends State<schedulePage> {
                                   .length,
                               itemBuilder: (BuildContext context, int index) {
                               return cardDayTemplate(snapshot.data!['listSubjects'][snapshot.data!['listSubjects'].keys
-                                  .toList()[index]]!, '${DateTime.now().month > 9?DateTime.now().month: "0${DateTime.now().month}"}.${DateTime.now().day}');
+                                  .toList()[index]]!, '${DateTime.now().month > 9?DateTime.now().month: "0${DateTime.now().month}"}.${DateTime.now().day > 9?DateTime.now().day:"0${DateTime.now().day}"}');
                               }
                             ),
                           ],
