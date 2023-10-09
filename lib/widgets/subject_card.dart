@@ -29,15 +29,20 @@ class _subjectCardState extends State<subjectCard> {
       child: InkWell(
         onTap: () {
           showModalBottomSheet(
+              isScrollControlled: true,
               context: GlobalNavigator.navigatorKey.currentContext!,
               shape: const RoundedRectangleBorder(
                   borderRadius:
                       BorderRadius.vertical(top: Radius.circular(12))),
               builder: (context) {
-                return SubjectBottomSheet(
-                    widget.subjectInfo.data, widget.subjectInfo.subjectName);
+                return AnimatedPadding(
+                    duration: const Duration(milliseconds: 150),
+                    curve: Curves.easeOut,
+                    padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom),
+                    child: SubjectBottomSheet(widget.subjectInfo.data,
+                        widget.subjectInfo.subjectName));
               });
-          // GlobalNavigator.navigatorKey!.currentContext!(new SnackBar(content: new Text('123')));
         },
         child: Column(
           children: [

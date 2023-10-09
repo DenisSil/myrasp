@@ -36,6 +36,7 @@ class MyRaspState extends State<MyRasp> {
       child: MaterialApp(
         navigatorKey: GlobalNavigator.navigatorKey,
         home: const Scaffold(
+          resizeToAvoidBottomInset: true,
           backgroundColor: Colors.white,
           body: schedulePage(),
         ),
