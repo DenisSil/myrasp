@@ -1,24 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../blocState/calendar_bloc_state.dart';
 
-class Alert extends StatefulWidget {
-
+class CalendarAlert extends StatefulWidget {
   int year;
   int month;
-  int day;
-  Alert({super.key, required this.year, required this.month, required this.day});
+
+  CalendarAlert({super.key, required this.year, required this.month});
 
   @override
-  State<Alert> createState() => _AlertState();
+  State<CalendarAlert> createState() => _CalendarAlertState();
 }
 
-class _AlertState extends State<Alert> {
-
-  var date;
+class _CalendarAlertState extends State<CalendarAlert> {
   var currentMonth;
   var currentYear;
-  var monthNameList = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-
+  var monthNameList = [
+    'Январь',
+    'Февраль',
+    'Март',
+    'Апрель',
+    'Май',
+    'Июнь',
+    'Июль',
+    'Август',
+    'Сентябрь',
+    'Октябрь',
+    'Ноябрь',
+    'Декабрь'
+  ];
 
   @override
   void initState() {
@@ -26,23 +37,16 @@ class _AlertState extends State<Alert> {
     super.initState();
     currentMonth = widget.month;
     currentYear = widget.year;
-    date = DateTime(widget.year, widget.month, widget.day);
   }
+
   @override
   Widget build(BuildContext context) {
-
-    void setDate(value) {
-      setState(() {
-        date = value;
-      });
-    }
-
     return Dialog(
       alignment: Alignment.center,
       backgroundColor: Colors.white,
       child: Container(
         padding: const EdgeInsets.all(10),
-        decoration:  BoxDecoration(
+        decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: Colors.white,
         ),
@@ -55,32 +59,30 @@ class _AlertState extends State<Alert> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
-                    onPressed: (){
+                    onPressed: () {
                       setState(() {
-                        if (currentMonth == 1){
+                        if (currentMonth == 1) {
                           currentMonth = 12;
                           currentYear--;
-                        }else{
+                        } else {
                           currentMonth--;
                         }
                       });
                     },
-                    icon: const Icon(Icons.arrow_back)
-                ),
-                Text(monthNameList[currentMonth-1]),
+                    icon: const Icon(Icons.arrow_back)),
+                Text(monthNameList[currentMonth - 1]),
                 IconButton(
-                    onPressed: (){
+                    onPressed: () {
                       setState(() {
-                        if (currentMonth == 12){
+                        if (currentMonth == 12) {
                           currentMonth = 1;
                           currentYear++;
-                        }else{
+                        } else {
                           currentMonth++;
                         }
                       });
                     },
-                    icon: const Icon(Icons.arrow_forward)
-                ),
+                    icon: const Icon(Icons.arrow_forward)),
               ],
             ),
             Expanded(
@@ -91,31 +93,33 @@ class _AlertState extends State<Alert> {
                 crossAxisSpacing: 5,
                 mainAxisSpacing: 5,
                 childAspectRatio: 0.9,
-                children: generate(setDate, currentYear, currentMonth, date),
+                children: generateCalendarDays(currentYear, currentMonth),
               ),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Text('${date.day > 9? date.day: "0${date.day}"}.${date.month > 9? date.month: "0${date.month}"}.${date.year}'),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFFF9000)
-                        ),
-
-                        onPressed: (){
-                          Navigator.pop(context, date);
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.all(10),
-                          child: Text('Ok'),
-                        )),
-                  ),
-                ],
+              child: BlocBuilder<CalendarDay, DateTime>(
+                builder: (context, state) => Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Text(
+                        '${state.day > 9 ? state.day : "0${state.day}"}.${state.month > 9 ? state.month : "0${state.month}"}.${state.year}'),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFFF9000)),
+                          onPressed: () {
+                            Navigator.pop(context,
+                                '${state.year}-${state.month > 9 ? state.month : "0${state.month}"}-${state.day > 9 ? state.day : "0${state.day}"}');
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.all(10),
+                            child: Text('Ok'),
+                          )),
+                    ),
+                  ],
+                ),
               ),
             )
           ],
@@ -125,93 +129,79 @@ class _AlertState extends State<Alert> {
   }
 }
 
-
-
-
-List<Widget> generate(dynamic func, int year, int month, DateTime selectedDay){
+List<Widget> generateCalendarDays(int year, int month) {
+  // генерирует список дней календаря на выбранный месяц
   List<Widget> list = [];
-  DateTime lastDayOfMonth = DateTime(year, month+1, 0);
+  DateTime lastDayOfMonth = DateTime(year, month + 1, 0);
   DateTime lastDayOfPerMonth = DateTime(year, month, 0);
-  var listdays = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
-  for(int i = 0;i < 7; i++){
+  var listdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+  for (int i = 0; i < 7; i++) {
     list.add(Center(child: Text(listdays[i])));
   }
   var day = DateTime(year, month, 1);
 
-  list.addAll(
-      List<Widget>.generate(day.weekday-1, (int index) =>
-          Center(
-              child: Text(
-                  '${lastDayOfPerMonth.day - index}',
-                  style: const TextStyle(
-                      color: Colors.grey
-                  )
-              )
-          )
-      ).reversed
-  );
-  for(int i = 1;i < lastDayOfMonth.day+1; i++){
-    list.add(calendarDay(calendarText: '$i', function: func, date: DateTime(year, month, i),  isSelectedDay: DateTime(year, month, i) == selectedDay));
+  list.addAll(List<Widget>.generate(
+    day.weekday - 1,
+    (int index) => Center(
+        child: Text('${lastDayOfPerMonth.day - index}',
+            style: const TextStyle(color: Colors.grey))),
+  ).reversed);
+  for (int i = 1; i < lastDayOfMonth.day + 1; i++) {
+    list.add(BlocBuilder<CalendarDay, DateTime>(
+        builder: (context, state) => calendarDay(
+            calendarText: '$i',
+            date: DateTime(year, month, i),
+            isSelectedDay: DateTime(year, month, i) == state)));
   }
-  list.addAll(
-      List<Widget>.generate(49 - list.length, (int index) =>
-          Center(
-              child: Text(
-                  '${index+1}',
-                  style: const TextStyle(
-                      color: Colors.grey
-                  )
-              )
-          )
-      )
-  );
+  list.addAll(List<Widget>.generate(
+      49 - list.length,
+      (int index) => Center(
+          child: Text('${index + 1}',
+              style: const TextStyle(color: Colors.grey)))));
 
   return list;
 }
 
-
 class calendarDay extends StatefulWidget {
-
   String calendarText;
-  dynamic function;
+
   DateTime date;
   bool isSelectedDay;
-  calendarDay({super.key, required this.calendarText, required this.function, required this.date, required this.isSelectedDay});
+  calendarDay(
+      {super.key,
+      required this.calendarText,
+      required this.date,
+      required this.isSelectedDay});
 
   @override
   State<calendarDay> createState() => _calendarDayState();
 }
 
 class _calendarDayState extends State<calendarDay> {
-
   @override
   Widget build(BuildContext context) {
-
     return Material(
       child: InkWell(
         hoverColor: Colors.blue,
-        onTap: (){
-          widget.function(widget.date);
-        },
+        onTap: () => context.read<CalendarDay>().setCalendarDay(widget.date),
         customBorder: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
         child: Container(
-            decoration: BoxDecoration(
-              color: widget.isSelectedDay == true? Colors.amber:Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black38,
-                  blurRadius: 1,
-                  offset: Offset(1, 1),
-
-                )
-              ],
-            ),
-            child: Center(child:Text(widget.calendarText)),
+          decoration: BoxDecoration(
+            color: widget.isSelectedDay == true ? Colors.amber : Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black38,
+                blurRadius: 1,
+                offset: Offset(1, 1),
+              )
+            ],
           ),
+          child: Center(child: Text(widget.calendarText)),
         ),
+      ),
     );
   }
 }

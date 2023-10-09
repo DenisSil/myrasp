@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
-import '/screens/notes/notesPage.dart';
-import 'screens/schedule/schedulePage.dart';
-import 'backend/GlobalContext.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'screens/schedule/schedule_page.dart';
+import 'blocState/calendar_bloc_state.dart';
+import 'blocState/search_page_bloc_state.dart';
+import 'blocState/schedule_notes_bloc_state.dart';
 
-void main() async{
+import 'backend/global_context.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyRasp());
 }
 
 class MyRasp extends StatefulWidget {
-
   const MyRasp({super.key});
 
   @override
@@ -18,54 +21,25 @@ class MyRasp extends StatefulWidget {
 }
 
 class MyRaspState extends State<MyRasp> {
-
   int currentPageIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: GlobalNavigator.navigatorKey,
-      home: Scaffold(
-        backgroundColor: Colors.white,
-          bottomNavigationBar: NavigationBar(
-            height: 70,
-            indicatorColor: Colors.orange[500],
-              backgroundColor: Colors.orange[400],
-              onDestinationSelected: (int index) {
-                  setState(() {
-                      currentPageIndex = index;
-                  });
-              },
-            labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
-            selectedIndex: currentPageIndex,
-            destinations: const <Widget>[
-              NavigationDestination(
-                icon: Icon(Icons.list),
-                label: '',
-
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.edit_note_sharp),
-                label: '',
-              ),
-            ],
-          ),
-          body: IndexedStack(
-                  index: currentPageIndex,
-                  children:const <Widget>[
-                    schedulePage(),
-                    notesPage()
-                  ],
-                )
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<CalendarDay>(
+          create: (_) => CalendarDay(),
+        ),
+        BlocProvider<SearchState>(create: (_) => SearchState()),
+        BlocProvider<ScheduleNotes>(create: (_) => ScheduleNotes()),
+      ],
+      child: MaterialApp(
+        navigatorKey: GlobalNavigator.navigatorKey,
+        home: const Scaffold(
+          backgroundColor: Colors.white,
+          body: schedulePage(),
+        ),
       ),
     );
   }
 }
-
-
-
-
-
-
-
-
