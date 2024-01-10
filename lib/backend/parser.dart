@@ -22,9 +22,9 @@ void checkInternetContection(SendPort internetConnectionPort) async {
   }
 }
 
-Future<Map<String, dynamic>> getData(int id, String date) async {
+Future<Map<String, dynamic>?> getData(int id, String date) async {
   List<Subject> listSubject = [];
-  var requestType;
+  String requestType;
   Map<String, List<Subject>> listSubjects = {};
 
   if (id > 50000 && id.toString().length == 5) {
@@ -62,15 +62,15 @@ Future<Map<String, dynamic>> getData(int id, String date) async {
         subject['преподаватель'],
         subject['аудитория']));
   });
-  listSubject.forEach((subject) {
-    if (listSubjects!.keys.contains(subject.data)) {
+  for (var subject in listSubject) {
+    if (listSubjects.keys.contains(subject.data)) {
       listSubjects[subject.data]!.add(subject);
     } else {
       if (subject.subjectName != "лек Военная кафедра") {
         listSubjects[subject.data] = [subject];
       }
     }
-  });
+  }
 
   var getDataResponse = {
     'name': name,
@@ -82,36 +82,51 @@ Future<Map<String, dynamic>> getData(int id, String date) async {
 
 Future<Map<String, int>?> getDataForSearch() async {
   Map<String, int> dataForSearch = {};
-  var url_groups =
+  var urlGroups =
       Uri.https('edu.donstu.ru', 'api/raspGrouplist', {'year': '2023-2024'});
 
-  var response_groups = await http.get(url_groups);
-  final data_groups = jsonDecode(response_groups.body)['data'];
+  var responseGroups = await http.get(urlGroups);
+  final dataGroups = jsonDecode(responseGroups.body)['data'];
 
-  data_groups.forEach((group) {
+  dataGroups.forEach((group) {
     dataForSearch[group['name']] = group['id'];
   });
 
-  var url_audit =
+  var urlAudit =
       Uri.https('edu.donstu.ru', 'api/raspAudlist', {'year': '2023-2024'});
 
-  var response_audit = await http.get(url_audit);
+  var responseAudit = await http.get(urlAudit);
 
-  final data_audit = jsonDecode(response_audit.body)['data'];
-  data_audit.forEach((audit) {
+  final dataAudit = jsonDecode(responseAudit.body)['data'];
+  dataAudit.forEach((audit) {
     dataForSearch[audit['name']] = audit['id'];
   });
 
-  var url_teacher =
+  var urlTeacher =
       Uri.https('edu.donstu.ru', 'api/raspTeacherlist', {'year': '2023-2024'});
 
-  var response_teacher = await http.get(url_teacher);
+  var responseTeacher = await http.get(urlTeacher);
 
-  final data_teacher = jsonDecode(response_teacher.body)['data'];
-  data_teacher.forEach((teacher) {
+  final dataTeacher = jsonDecode(responseTeacher.body)['data'];
+  dataTeacher.forEach((teacher) {
     dataForSearch[teacher['name']] = teacher['id'];
   });
 
+  return dataForSearch;
+}
+
+Future<Map<String, int>?> getGroupForSettings() async {
+  Map<String, int> dataForSearch = {};
+  var urlGroups =
+      Uri.https('edu.donstu.ru', 'api/raspGrouplist', {'year': '2023-2024'});
+
+  var responseGroups = await http.get(urlGroups);
+  final dataGroups = jsonDecode(responseGroups.body)['data'];
+
+  dataGroups.forEach((group) {
+    dataForSearch[group['name']] = group['id'];
+  });
+  print(123);
   return dataForSearch;
 }
 

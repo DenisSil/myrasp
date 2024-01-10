@@ -1,47 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:provider/provider.dart';
 
 import '/backend/parser.dart';
-import '/blocState/search_page_bloc_state.dart';
+import 'search_page_view_model.dart';
 
-class searchPage extends StatefulWidget {
-  const searchPage({super.key});
+class SearchPage extends StatefulWidget {
+  const SearchPage({super.key});
 
   @override
-  State<searchPage> createState() => _searchPageState();
+  State<SearchPage> createState() => _SearchPageState();
 }
 
-class _searchPageState extends State<searchPage> {
-  final TextEditingController _controller = TextEditingController();
-
-  var groups;
+class _SearchPageState extends State<SearchPage> {
+  
   var futureSearchFunc;
-  List<List<dynamic>> searchResult = [];
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     futureSearchFunc = getDataForSearch();
-    if (context.read<SearchState>().state == null) {
+    var searchState = Provider.of<SearchPageViewModel>(context, listen: false);
+
+    if (searchState.model.groups.isEmpty) {
       getDataForSearch().then((value) {
-        context.read<SearchState>().setSearchState(value);
-        setState(() {
-          groups = context.read<SearchState>().state;
-        });
+        searchState.updateModel(groups: value);
+        print(searchState.model.groups);
       });
-    } else {
-      setState(() {
-        groups = context.read<SearchState>().state;
-      });
-    }
+    } 
   }
 
   @override
   Widget build(BuildContext context) {
-    Color? focusColor = Colors.grey;
-
+    
     return Scaffold(
         body: Align(
             alignment: Alignment.topCenter,
@@ -51,16 +43,80 @@ class _searchPageState extends State<searchPage> {
                 constraints: const BoxConstraints(
                   maxWidth: 600,
                 ),
-                child: groups == null
-                    ? const Align(
+                child: Consumer<SearchPageViewModel>(builder: (context, value, child) {
+                   if(value.model.groups.isEmpty){
+                     return const Align(
                         alignment: Alignment.center,
                         child: SpinKitCircle(
                           color: Colors.black,
                           size: 50.0,
-                        ))
-                    : Column(
+                        ));
+                   }else{ 
+                    return Column(
                         children: [
-                          Row(
+                          const SearchBar(),
+                          Expanded(
+                              child: Container(
+                            margin: const EdgeInsets.only(left: 45),
+                            child: ListView.builder(
+                                scrollDirection: Axis.vertical,
+                                shrinkWrap: true,
+                                padding: const EdgeInsets.only(bottom: 8),
+                                itemCount: value.model.searchResult.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return searchItem(
+                                      groupName:  value.model.searchResult[index][0],
+                                      groupId:  value.model.searchResult[index][1]);
+                                }),
+                          ))
+                        ]);
+                   }}))));
+  
+  }
+}
+
+class searchItem extends StatelessWidget {
+  final String groupName;
+  final int groupId;
+  const searchItem({super.key, required this.groupName, required this.groupId});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 10, left: 20, right: 20),
+      child: InkWell(
+          borderRadius: BorderRadius.circular(10),
+          focusColor: Colors.white,
+          onTap: () {
+            Navigator.pop(context, groupId);
+          },
+          child: Container(
+            decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(10)),
+            padding: const EdgeInsets.all(10),
+            child: Text(groupName, style: TextStyle(color: Colors.grey[600])),
+          )),
+    );
+  }
+}
+
+class SearchBar extends StatefulWidget {
+  const SearchBar({super.key});
+
+  @override
+  State<SearchBar> createState() => _SearchBarState();
+}
+
+class _SearchBarState extends State<SearchBar> {
+
+  final TextEditingController _controller = TextEditingController();
+  
+  @override
+  Widget build(BuildContext context) {
+      Color focusColor = Colors.grey;
+    return Consumer<SearchPageViewModel>(
+      builder: (context, value, child) => Row(
                             children: [
                               IconButton(
                                   onPressed: () {
@@ -81,8 +137,8 @@ class _searchPageState extends State<searchPage> {
                                       child: TextField(
                                         onChanged: (search) {
                                           if (search.length >= 2) {
-                                            searchResult = [];
-                                            groups.keys
+                                            var searchRes = [];
+                                             value.model.groups.keys
                                                 .toList()
                                                 .forEach((group) {
                                               if (group
@@ -90,17 +146,15 @@ class _searchPageState extends State<searchPage> {
                                                   .toLowerCase()
                                                   .contains(
                                                       search.toLowerCase())) {
-                                                searchResult.add(
-                                                    [group, groups[group]]);
+                                                searchRes.add(
+                                                    [group, value.model.groups[group]]);
                                               }
                                             });
-                                            setState(() {
-                                              searchResult = searchResult;
-                                            });
+                                            value.updateModel(searchResult: searchRes);
                                           } else {
-                                            setState(() {
-                                              searchResult = [];
-                                            });
+                                            if(value.model.searchResult.isNotEmpty){
+                                              value.updateModel(searchResult: []);
+                                            }
                                           }
                                         },
                                         controller: _controller,
@@ -128,48 +182,6 @@ class _searchPageState extends State<searchPage> {
                                 ),
                               )),
                             ],
-                          ),
-                          Expanded(
-                              child: Container(
-                            margin: const EdgeInsets.only(left: 45),
-                            child: ListView.builder(
-                                scrollDirection: Axis.vertical,
-                                shrinkWrap: true,
-                                padding: const EdgeInsets.only(bottom: 8),
-                                itemCount: searchResult.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return searchItem(
-                                      groupName: searchResult[index][0],
-                                      groupId: searchResult[index][1]);
-                                }),
-                          ))
-                        ],
-                      ))));
-  }
-}
-
-class searchItem extends StatelessWidget {
-  final String groupName;
-  final int groupId;
-  const searchItem({super.key, required this.groupName, required this.groupId});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(top: 10, left: 20, right: 20),
-      child: InkWell(
-          borderRadius: BorderRadius.circular(10),
-          focusColor: Colors.white,
-          onTap: () {
-            Navigator.pop(context, groupId);
-          },
-          child: Container(
-            decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(10)),
-            padding: const EdgeInsets.all(10),
-            child: Text(groupName, style: TextStyle(color: Colors.grey[600])),
-          )),
-    );
+                          ));
   }
 }

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
-import '../blocState/calendar_bloc_state.dart';
+import '/screens/schedule_page/schedule_page_view_model.dart';
+import 'calendar_state.dart';
 
 class CalendarAlert extends StatefulWidget {
   int year;
   int month;
-
   CalendarAlert({super.key, required this.year, required this.month});
 
   @override
@@ -14,8 +14,8 @@ class CalendarAlert extends StatefulWidget {
 }
 
 class _CalendarAlertState extends State<CalendarAlert> {
-  var currentMonth;
-  var currentYear;
+  late int currentMonth;
+  late int currentYear;
   var monthNameList = [
     'Январь',
     'Февраль',
@@ -33,7 +33,6 @@ class _CalendarAlertState extends State<CalendarAlert> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     currentMonth = widget.month;
     currentYear = widget.year;
@@ -87,31 +86,28 @@ class _CalendarAlertState extends State<CalendarAlert> {
             ),
             Expanded(
               child: GridView.count(
-                shrinkWrap: false,
-                // убрать скролл
-                crossAxisCount: 7,
-                crossAxisSpacing: 5,
-                mainAxisSpacing: 5,
-                childAspectRatio: 0.9,
-                children: generateCalendarDays(currentYear, currentMonth),
-              ),
+                  shrinkWrap: false,
+                  crossAxisCount: 7,
+                  crossAxisSpacing: 5,
+                  mainAxisSpacing: 5,
+                  childAspectRatio: 0.9,
+                  children: generateCalendarDays(currentYear, currentMonth)),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 5),
-              child: BlocBuilder<CalendarDay, DateTime>(
-                builder: (context, state) => Row(
+              child: Consumer<CalendarDay>(
+                builder: (context, value, child) => Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     Text(
-                        '${state.day > 9 ? state.day : "0${state.day}"}.${state.month > 9 ? state.month : "0${state.month}"}.${state.year}'),
+                        '${value.state.day > 9 ? value.state.day : "0${value.state.day}"}.${value.state.month > 9 ? value.state.month : "0${value.state.month}"}.${value.state.year}'),
                     Align(
                       alignment: Alignment.bottomRight,
                       child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFFF9000)),
                           onPressed: () {
-                            Navigator.pop(context,
-                                '${state.year}-${state.month > 9 ? state.month : "0${state.month}"}-${state.day > 9 ? state.day : "0${state.day}"}');
+                            Navigator.pop(context, value.state);
                           },
                           child: const Padding(
                             padding: EdgeInsets.all(10),
@@ -147,11 +143,11 @@ List<Widget> generateCalendarDays(int year, int month) {
             style: const TextStyle(color: Colors.grey))),
   ).reversed);
   for (int i = 1; i < lastDayOfMonth.day + 1; i++) {
-    list.add(BlocBuilder<CalendarDay, DateTime>(
-        builder: (context, state) => calendarDay(
+    list.add(Consumer<CalendarDay>(
+        builder: (context, value, child) => calendarDay(
             calendarText: '$i',
             date: DateTime(year, month, i),
-            isSelectedDay: DateTime(year, month, i) == state)));
+            isSelectedDay: DateTime(year, month, i) == value.state)));
   }
   list.addAll(List<Widget>.generate(
       49 - list.length,
@@ -178,6 +174,32 @@ class calendarDay extends StatefulWidget {
 }
 
 class _calendarDayState extends State<calendarDay> {
+  List<ScheduleNotesData> notesOfDay = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    var scheduleNotesData =
+        Provider.of<ScheduleNotes>(context, listen: false).model;
+    var date =
+        "${widget.date.month > 9 ? widget.date.month : "0${widget.date.month}"}.${widget.date.day > 9 ? widget.date.day : "0${widget.date.day}"}";
+
+    for (var scheduleNotesId in scheduleNotesData.keys) {
+      if (scheduleNotesId.contains(date)) {
+        notesOfDay.add(scheduleNotesData[scheduleNotesId]!);
+        break;
+      }
+    }
+
+    if (notesOfDay.isNotEmpty) {
+      setState(() {
+        notesOfDay = notesOfDay;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -199,7 +221,22 @@ class _calendarDayState extends State<calendarDay> {
               )
             ],
           ),
-          child: Center(child: Text(widget.calendarText)),
+          child: Center(
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                Text(widget.calendarText),
+                notesOfDay.isEmpty
+                    ? const SizedBox(
+                        height: 1,
+                        width: 1,
+                      )
+                    : Container(
+                        width: 5,
+                        height: 5,
+                        color: Colors.red,
+                      )
+              ])),
         ),
       ),
     );

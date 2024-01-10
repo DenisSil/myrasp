@@ -12,8 +12,10 @@ class cardDay extends StatefulWidget {
 }
 
 class _cardDayState extends State<cardDay> {
+  var cardElementsKey = GlobalKey();
   bool clickCard = false;
   double cardHeight = 60;
+
   String todayDay =
       '${DateTime.now().month > 9 ? DateTime.now().month : "0${DateTime.now().month}"}.${DateTime.now().day > 9 ? DateTime.now().day : "0${DateTime.now().day}"}';
   double heightR(cardsCount) {
@@ -93,18 +95,20 @@ class _cardDayState extends State<cardDay> {
                   });
                 },
               ),
-              if (clickCard)
-                Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: ListView.builder(
-                        scrollDirection: Axis.vertical,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.only(bottom: 8),
-                        itemCount: widget.dataOfDay.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return subjectCard(widget.dataOfDay[index]);
-                        }))
+              Visibility(
+                  key: cardElementsKey,
+                  visible: clickCard,
+                  child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: ListView.builder(
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: const EdgeInsets.only(bottom: 8),
+                          itemCount: widget.dataOfDay.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return subjectCard(widget.dataOfDay[index]);
+                          })))
             ],
           ),
         ));

@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
-import '../backend/parser.dart';
-import '../backend/global_context.dart';
+import '/backend/parser.dart';
+import '/backend/global_context.dart';
 import '/widgets/subject_bottom_sheet.dart';
-import '../blocState/schedule_notes_bloc_state.dart';
+import '/screens/schedule_page/schedule_page_view_model.dart';
 
 class subjectCard extends StatefulWidget {
   Subject subjectInfo;
-
   subjectCard(this.subjectInfo, {super.key});
 
   @override
@@ -16,6 +15,8 @@ class subjectCard extends StatefulWidget {
 }
 
 class _subjectCardState extends State<subjectCard> {
+  var subjectKey = GlobalKey();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -28,6 +29,12 @@ class _subjectCardState extends State<subjectCard> {
       padding: const EdgeInsets.only(bottom: 10),
       child: InkWell(
         onTap: () {
+          //returns null:
+          final cardContext = subjectKey.currentContext;
+          // final context = subjectKey.currentContext!;
+          //Error: The getter 'context' was called on null.
+          print(cardContext!.size!.height);
+
           showModalBottomSheet(
               isScrollControlled: true,
               context: GlobalNavigator.navigatorKey.currentContext!,
@@ -45,6 +52,7 @@ class _subjectCardState extends State<subjectCard> {
               });
         },
         child: Column(
+          key: subjectKey,
           children: [
             Container(
                 padding: const EdgeInsets.all(15),
@@ -89,12 +97,11 @@ class _subjectCardState extends State<subjectCard> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 10),
-                      child: BlocBuilder<ScheduleNotes,
-                              Map<String, ScheduleNotesData>>(
-                          builder: (context, state) {
-                        if (state.containsKey(
+                      child: Consumer<ScheduleNotes>(
+                          builder: (context, value, child) {
+                        if (value.model.containsKey(
                             "${widget.subjectInfo.data} - ${widget.subjectInfo.subjectName}")) {
-                          var currentNotes = state[
+                          var currentNotes = value.model[
                               "${widget.subjectInfo.data} - ${widget.subjectInfo.subjectName}"];
                           return Container(
                             width: 20,

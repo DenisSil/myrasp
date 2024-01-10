@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:localstore/localstore.dart';
+import 'package:provider/provider.dart';
 
-import '../blocState/schedule_notes_bloc_state.dart';
+import '/screens/schedule_page/schedule_page_view_model.dart';
 
 class SubjectBottomSheet extends StatefulWidget {
   String date;
@@ -18,13 +18,14 @@ class _SubjectBottomSheetState extends State<SubjectBottomSheet> {
   final _messageFieldController = TextEditingController();
   var currentNotes;
   var id;
+  var data;
   var selectedColor = 0xfff44336;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     id = "${widget.date} - ${widget.subjectName}";
-    var data = context.read<ScheduleNotes>().readData();
+    data = Provider.of<ScheduleNotes>(context, listen: false).model;
     if (data.containsKey(id)) {
       currentNotes = data[id];
       selectedColor = currentNotes!.selectedColor;
@@ -36,26 +37,26 @@ class _SubjectBottomSheetState extends State<SubjectBottomSheet> {
   void deactivate() {
     // TODO: implement deactivate
     super.deactivate();
-
-    if (_messageFieldController.text.isEmpty && currentNotes != null) {
+    if (!(data.containsKey(id))) {
+      return;
+    }
+    if (_messageFieldController.text.isEmpty) {
       context
           .read<ScheduleNotes>()
           .clearNotes(currentNotes.id, currentNotes.localstorageId);
     } else {
-      if (_messageFieldController.text.isNotEmpty) {
-        final db = Localstore.instance;
-        final localstorageId = db.collection('notes').doc().id;
-        var addedNotes = ScheduleNotesData(
-            id, localstorageId, selectedColor, _messageFieldController.text);
-        context.read<ScheduleNotes>().addNotes(id, addedNotes);
+      final db = Localstore.instance;
+      final localstorageId = db.collection('notes').doc().id;
+      var addedNotes = ScheduleNotesData(
+          id, localstorageId, selectedColor, _messageFieldController.text);
+      context.read<ScheduleNotes>().addNotes(id, addedNotes);
 
-        db.collection('notes').doc(localstorageId).set({
-          'id': addedNotes.id,
-          'localstorageId': addedNotes.localstorageId,
-          'color': addedNotes.selectedColor,
-          'message': addedNotes.message
-        });
-      }
+      db.collection('notes').doc(localstorageId).set({
+        'id': addedNotes.id,
+        'localstorageId': addedNotes.localstorageId,
+        'color': addedNotes.selectedColor,
+        'message': addedNotes.message
+      });
     }
   }
 

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'screens/search_page/search_page_view_model.dart';
+import 'package:provider/provider.dart';
 
-import 'screens/schedule/schedule_page.dart';
-import 'blocState/calendar_bloc_state.dart';
-import 'blocState/search_page_bloc_state.dart';
-import 'blocState/schedule_notes_bloc_state.dart';
+import 'screens/schedule_page/schedule_page.dart';
+import 'widgets/calendar/calendar_state.dart';
+import 'screens/schedule_page/schedule_page_view_model.dart';
 
 import 'backend/global_context.dart';
 
@@ -25,20 +25,19 @@ class MyRaspState extends State<MyRasp> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
+    return MultiProvider(
       providers: [
-        BlocProvider<CalendarDay>(
-          create: (_) => CalendarDay(),
-        ),
-        BlocProvider<SearchState>(create: (_) => SearchState()),
-        BlocProvider<ScheduleNotes>(create: (_) => ScheduleNotes()),
+        ChangeNotifierProvider(create: (_) => SchedulePageViewModel()),
+        ChangeNotifierProvider(create: (_) => ScheduleNotes()),
+        ChangeNotifierProvider(create: (_) => CalendarDay()),
+        ChangeNotifierProvider(create: (_) => SearchPageViewModel())
       ],
       child: MaterialApp(
         navigatorKey: GlobalNavigator.navigatorKey,
         home: const Scaffold(
           resizeToAvoidBottomInset: true,
           backgroundColor: Colors.white,
-          body: schedulePage(),
+          body: SchedulePage(),
         ),
       ),
     );
