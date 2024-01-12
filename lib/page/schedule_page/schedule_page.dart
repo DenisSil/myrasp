@@ -3,14 +3,13 @@ import 'dart:isolate';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:localstore/localstore.dart';
-import 'package:myrasp/screens/settings_page/settings_page.dart';
+import '/page/settings_page/settings_page.dart';
+import '/service/check_internet_service.dart';
 import 'package:provider/provider.dart';
 
 import '/widgets/card_day.dart';
 import '/widgets/calendar/calendar.dart';
-import 'schedule_page_view_model.dart';
-import '/backend/parser.dart';
+import '/view_model/schedule_page_view_model.dart';
 import '../search_page/search_page.dart';
 import 'package:gap/gap.dart';
 
@@ -27,7 +26,8 @@ class _SchedulePageState extends State<SchedulePage> {
   void intenetConnectionLoop() async {
     ReceivePort internetConnectionPort = ReceivePort();
     Isolate internetConnection = await Isolate.spawn(
-        checkInternetContection, internetConnectionPort.sendPort);
+        CheckInternetService.checkInternetContection,
+        internetConnectionPort.sendPort);
     internetConnectionPort.listen((message) {
       setState(() {
         internetConnectionState = message;
@@ -40,20 +40,8 @@ class _SchedulePageState extends State<SchedulePage> {
     super.initState();
 
     intenetConnectionLoop();
-
-    Map<String, ScheduleNotesData> notes = {};
-
-    var db = Localstore.instance;
-
-    db.collection('notes').get().then((value) {
-      if (value != null) {
-        value.forEach((key, value) {
-          notes[value['id']] = (ScheduleNotesData(value['id'],
-              value['localstorageId'], value['color'], value['message']));
-        });
-        context.read<ScheduleNotes>().setScheduleNotes(notes);
-      }
-    });
+    context.read<ScheduleNotes>().getNotes();
+    context.read<SchedulePageViewModel>().getScheduleData();
   }
 
   @override
@@ -77,42 +65,22 @@ class _SchedulePageState extends State<SchedulePage> {
                         child: Column(
                           children: [
                             const ScheduleSettings(),
-                            FutureBuilder(
-                                future: value.model.data,
-                                builder: (BuildContext context,
-                                    AsyncSnapshot<Map<String, dynamic>?>
-                                        snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return const Padding(
-                                      padding: EdgeInsets.only(top: 30),
-                                      child: SpinKitCircle(
-                                        color: Colors.black,
-                                        size: 50.0,
-                                      ),
-                                    );
-                                  } else if (snapshot.connectionState ==
-                                      ConnectionState.done) {
-                                    var type;
-
-                                    if (snapshot.data != null) {
-                                      switch (snapshot.data!['type']) {
-                                        case "idGroup":
-                                          type = "группы";
-                                        case "idAudLine":
-                                          type = "аудитории";
-                                        case "idTeacher":
-                                          type = "преподавателя";
-                                      }
-                                    }
-                                    if (snapshot.data != null) {
-                                      return Column(
+                            value.model.data == null
+                                ? const Padding(
+                                    padding: EdgeInsets.only(top: 30),
+                                    child: SpinKitCircle(
+                                      color: Colors.black,
+                                      size: 50.0,
+                                    ),
+                                  )
+                                : value.model.data != {}
+                                    ? Column(
                                         children: [
                                           Padding(
                                             padding: const EdgeInsets.only(
                                                 top: 10, bottom: 10),
                                             child: Text(
-                                                "Расписание $type ${snapshot.data!['name']}",
+                                                "Расписание ${value.model.data!['type']} ${value.model.data!['name']}",
                                                 style: const TextStyle(
                                                     fontSize: 20,
                                                     fontWeight:
@@ -125,39 +93,32 @@ class _SchedulePageState extends State<SchedulePage> {
                                                   const NeverScrollableScrollPhysics(),
                                               padding: const EdgeInsets.only(
                                                   bottom: 8),
-                                              itemCount: snapshot
+                                              itemCount: value.model
                                                   .data!['listSubjects'].keys
                                                   .toList()
                                                   .length,
                                               itemBuilder:
                                                   (BuildContext context,
                                                       int index) {
-                                                return cardDay(snapshot
+                                                return cardDay(value.model
                                                         .data!['listSubjects'][
-                                                    snapshot
+                                                    value
+                                                        .model
                                                         .data!['listSubjects']
                                                         .keys
                                                         .toList()[index]]!);
                                               }),
                                         ],
-                                      );
-                                    } else {
-                                      return const Padding(
-                                          padding: EdgeInsets.only(top: 30),
-                                          child: Text('Нет данных',
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                decoration: TextDecoration.none,
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 20,
-                                              )));
-                                    }
-                                  } else if (snapshot.hasError) {
-                                    return Text(snapshot.error.toString());
-                                  } else {
-                                    return const Text('Нет данных');
-                                  }
-                                })
+                                      )
+                                    : const Padding(
+                                        padding: EdgeInsets.only(top: 30),
+                                        child: Text('Нет данных',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              decoration: TextDecoration.none,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 20,
+                                            )))
                           ],
                         ),
                       ),
@@ -201,9 +162,6 @@ class ScheduleSettings extends StatelessWidget {
                                   FadeTransition(opacity: a, child: c),
                             ),
                           );
-                          if (groupId != null) {
-                            value.updateState(newGroup: groupId);
-                          }
                         },
                         child: Container(
                           decoration: BoxDecoration(

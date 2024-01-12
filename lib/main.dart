@@ -1,28 +1,26 @@
 import 'package:flutter/material.dart';
-import 'screens/search_page/search_page_view_model.dart';
+import '/view_model/search_page_view_model.dart';
 import 'package:provider/provider.dart';
 
-import 'screens/schedule_page/schedule_page.dart';
-import 'widgets/calendar/calendar_state.dart';
-import 'screens/schedule_page/schedule_page_view_model.dart';
+import '/page/schedule_page/schedule_page.dart';
+import '/widgets/calendar/calendar_state.dart';
+import '/view_model/schedule_page_view_model.dart';
 
-import 'backend/global_context.dart';
+import 'global_context.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyRasp());
+  runApp(const Application());
 }
 
-class MyRasp extends StatefulWidget {
-  const MyRasp({super.key});
+class Application extends StatefulWidget {
+  const Application({super.key});
 
   @override
-  State<MyRasp> createState() => MyRaspState();
+  State<Application> createState() => ApplicationState();
 }
 
-class MyRaspState extends State<MyRasp> {
-  int currentPageIndex = 0;
-
+class ApplicationState extends State<Application> {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(

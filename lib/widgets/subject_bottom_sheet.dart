@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:localstore/localstore.dart';
+
 import 'package:provider/provider.dart';
 
-import '/screens/schedule_page/schedule_page_view_model.dart';
+import '/view_model/schedule_page_view_model.dart';
 
 class SubjectBottomSheet extends StatefulWidget {
   String date;
@@ -16,20 +16,20 @@ class SubjectBottomSheet extends StatefulWidget {
 
 class _SubjectBottomSheetState extends State<SubjectBottomSheet> {
   final _messageFieldController = TextEditingController();
-  var currentNotes;
-  var id;
-  var data;
-  var selectedColor = 0xfff44336;
+  late ScheduleNotesData _currentNotes;
+  late String _id;
+  late Map<String, ScheduleNotesData> _data;
+  int _selectedColor = 0xfff44336;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    id = "${widget.date} - ${widget.subjectName}";
-    data = Provider.of<ScheduleNotes>(context, listen: false).model;
-    if (data.containsKey(id)) {
-      currentNotes = data[id];
-      selectedColor = currentNotes!.selectedColor;
-      _messageFieldController.text = currentNotes!.message;
+    _id = "${widget.date} - ${widget.subjectName}";
+    _data = context.read<ScheduleNotes>().model;
+    if (_data.containsKey(_id)) {
+      _currentNotes = _data[_id]!;
+      _selectedColor = _currentNotes.selectedColor;
+      _messageFieldController.text = _currentNotes.message;
     }
   }
 
@@ -37,26 +37,17 @@ class _SubjectBottomSheetState extends State<SubjectBottomSheet> {
   void deactivate() {
     // TODO: implement deactivate
     super.deactivate();
-    if (!(data.containsKey(id))) {
+
+    var scheduleNotesViewModel = context.read<ScheduleNotes>();
+    if (_data.containsKey(_id)) {
+      if (_messageFieldController.text.isEmpty) {
+        scheduleNotesViewModel.clearNotes(_id, _currentNotes.localstorageId);
+      }
       return;
     }
-    if (_messageFieldController.text.isEmpty) {
-      context
-          .read<ScheduleNotes>()
-          .clearNotes(currentNotes.id, currentNotes.localstorageId);
-    } else {
-      final db = Localstore.instance;
-      final localstorageId = db.collection('notes').doc().id;
-      var addedNotes = ScheduleNotesData(
-          id, localstorageId, selectedColor, _messageFieldController.text);
-      context.read<ScheduleNotes>().addNotes(id, addedNotes);
-
-      db.collection('notes').doc(localstorageId).set({
-        'id': addedNotes.id,
-        'localstorageId': addedNotes.localstorageId,
-        'color': addedNotes.selectedColor,
-        'message': addedNotes.message
-      });
+    if (_messageFieldController.text.isNotEmpty) {
+      scheduleNotesViewModel.addNotes(
+          _id, _selectedColor, _messageFieldController.text);
     }
   }
 
@@ -74,7 +65,7 @@ class _SubjectBottomSheetState extends State<SubjectBottomSheet> {
             child: Row(
               children: [
                 Flexible(
-                    child: Text(id,
+                    child: Text(_id,
                         softWrap: true,
                         maxLines: 3,
                         style: const TextStyle(
@@ -92,15 +83,15 @@ class _SubjectBottomSheetState extends State<SubjectBottomSheet> {
                   padding: const EdgeInsets.only(left: 10),
                   child: InkWell(
                     onTap: () => setState(() {
-                      selectedColor = 0xfff44336;
+                      _selectedColor = 0xfff44336;
                     }),
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         color: const Color(0xfff44336),
                       ),
-                      width: selectedColor == 0xfff44336 ? 25 : 20,
-                      height: selectedColor == 0xfff44336 ? 25 : 20,
+                      width: _selectedColor == 0xfff44336 ? 25 : 20,
+                      height: _selectedColor == 0xfff44336 ? 25 : 20,
                     ),
                   ),
                 ),
@@ -108,11 +99,11 @@ class _SubjectBottomSheetState extends State<SubjectBottomSheet> {
                   padding: const EdgeInsets.only(left: 10),
                   child: InkWell(
                     onTap: () => setState(() {
-                      selectedColor = 0xff4caf50;
+                      _selectedColor = 0xff4caf50;
                     }),
                     child: Container(
-                      width: selectedColor == 0xff4caf50 ? 25 : 20,
-                      height: selectedColor == 0xff4caf50 ? 25 : 20,
+                      width: _selectedColor == 0xff4caf50 ? 25 : 20,
+                      height: _selectedColor == 0xff4caf50 ? 25 : 20,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         color: const Color(0xff4caf50),
@@ -124,11 +115,11 @@ class _SubjectBottomSheetState extends State<SubjectBottomSheet> {
                   padding: const EdgeInsets.only(left: 10),
                   child: InkWell(
                     onTap: () => setState(() {
-                      selectedColor = 0xff2196f3;
+                      _selectedColor = 0xff2196f3;
                     }),
                     child: Container(
-                      width: selectedColor == 0xff2196f3 ? 25 : 20,
-                      height: selectedColor == 0xff2196f3 ? 25 : 20,
+                      width: _selectedColor == 0xff2196f3 ? 25 : 20,
+                      height: _selectedColor == 0xff2196f3 ? 25 : 20,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         color: const Color(0xff2196f3),
@@ -140,11 +131,11 @@ class _SubjectBottomSheetState extends State<SubjectBottomSheet> {
                   padding: const EdgeInsets.only(left: 10),
                   child: InkWell(
                     onTap: () => setState(() {
-                      selectedColor = 0xffffeb3b;
+                      _selectedColor = 0xffffeb3b;
                     }),
                     child: Container(
-                      width: selectedColor == 0xffffeb3b ? 25 : 20,
-                      height: selectedColor == 0xffffeb3b ? 25 : 20,
+                      width: _selectedColor == 0xffffeb3b ? 25 : 20,
+                      height: _selectedColor == 0xffffeb3b ? 25 : 20,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         color: const Color(0xffffeb3b),

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '/backend/parser.dart';
-import '/backend/global_context.dart';
+import '../service/api_secvice.dart';
+import '../global_context.dart';
 import '/widgets/subject_bottom_sheet.dart';
-import '/screens/schedule_page/schedule_page_view_model.dart';
+import '../view_model/schedule_page_view_model.dart';
 
 class subjectCard extends StatefulWidget {
   Subject subjectInfo;

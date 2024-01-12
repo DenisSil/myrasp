@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:myrasp/backend/parser.dart';
 import 'package:myrasp/widgets/dropdown.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -12,16 +11,6 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   var groups;
-
-  @override
-  void initState() {
-    super.initState();
-
-    getGroupForSettings().then((value) {
-      groups = value;
-      setState(() {});
-    });
-  }
 
   @override
   Widget build(BuildContext context) {

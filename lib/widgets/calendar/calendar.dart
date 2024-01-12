@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '/screens/schedule_page/schedule_page_view_model.dart';
+import '../../view_model/schedule_page_view_model.dart';
 import 'calendar_state.dart';
 
 class CalendarAlert extends StatefulWidget {
@@ -14,9 +15,9 @@ class CalendarAlert extends StatefulWidget {
 }
 
 class _CalendarAlertState extends State<CalendarAlert> {
-  late int currentMonth;
-  late int currentYear;
-  var monthNameList = [
+  late int _currentMonth;
+  late int _currentYear;
+  var _monthNameList = [
     'Январь',
     'Февраль',
     'Март',
@@ -34,8 +35,8 @@ class _CalendarAlertState extends State<CalendarAlert> {
   @override
   void initState() {
     super.initState();
-    currentMonth = widget.month;
-    currentYear = widget.year;
+    _currentMonth = widget.month;
+    _currentYear = widget.year;
   }
 
   @override
@@ -60,24 +61,24 @@ class _CalendarAlertState extends State<CalendarAlert> {
                 IconButton(
                     onPressed: () {
                       setState(() {
-                        if (currentMonth == 1) {
-                          currentMonth = 12;
-                          currentYear--;
+                        if (_currentMonth == 1) {
+                          _currentMonth = 12;
+                          _currentYear--;
                         } else {
-                          currentMonth--;
+                          _currentMonth--;
                         }
                       });
                     },
                     icon: const Icon(Icons.arrow_back)),
-                Text(monthNameList[currentMonth - 1]),
+                Text(_monthNameList[_currentMonth - 1]),
                 IconButton(
                     onPressed: () {
                       setState(() {
-                        if (currentMonth == 12) {
-                          currentMonth = 1;
-                          currentYear++;
+                        if (_currentMonth == 12) {
+                          _currentMonth = 1;
+                          _currentYear++;
                         } else {
-                          currentMonth++;
+                          _currentMonth++;
                         }
                       });
                     },
@@ -91,7 +92,7 @@ class _CalendarAlertState extends State<CalendarAlert> {
                   crossAxisSpacing: 5,
                   mainAxisSpacing: 5,
                   childAspectRatio: 0.9,
-                  children: generateCalendarDays(currentYear, currentMonth)),
+                  children: generateCalendarDays(_currentYear, _currentMonth)),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 5),
@@ -99,8 +100,7 @@ class _CalendarAlertState extends State<CalendarAlert> {
                 builder: (context, value, child) => Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    Text(
-                        '${value.state.day > 9 ? value.state.day : "0${value.state.day}"}.${value.state.month > 9 ? value.state.month : "0${value.state.month}"}.${value.state.year}'),
+                    Text(DateFormat('dd.MM.yyyy').format(value.state)),
                     Align(
                       alignment: Alignment.bottomRight,
                       child: ElevatedButton(
