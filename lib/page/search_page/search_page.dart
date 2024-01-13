@@ -13,11 +13,8 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  var futureSearchFunc;
-
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     context.read<SearchPageViewModel>().getSearchData();
   }
@@ -43,23 +40,26 @@ class _SearchPageState extends State<SearchPage> {
                     size: 50.0,
                   ));
             } else {
-              return Column(children: [
-                const SearchBar(),
-                Expanded(
+              return Column(
+                children: [
+                  const SearchBar(),
+                  Expanded(
                     child: Container(
-                  margin: const EdgeInsets.only(left: 45),
-                  child: ListView.builder(
-                      scrollDirection: Axis.vertical,
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.only(bottom: 8),
-                      itemCount: value.model.searchResult.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return searchItem(
-                            groupName: value.model.searchResult[index][0],
-                            groupId: value.model.searchResult[index][1]);
-                      }),
-                ))
-              ]);
+                      margin: const EdgeInsets.only(left: 45),
+                      child: ListView.builder(
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          padding: const EdgeInsets.only(bottom: 8),
+                          itemCount: value.model.searchResult.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return searchItem(
+                                groupName: value.model.searchResult[index][0],
+                                groupId: value.model.searchResult[index][1]);
+                          }),
+                    ),
+                  ),
+                ],
+              );
             }
           }),
         ),
@@ -78,21 +78,24 @@ class searchItem extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(top: 10, left: 20, right: 20),
       child: InkWell(
-          borderRadius: BorderRadius.circular(10),
-          focusColor: Colors.white,
-          onTap: () {
-            context
-                .read<SchedulePageViewModel>()
-                .updateState(newName: groupName, newGroup: groupId);
-            Navigator.pop(context);
-          },
-          child: Container(
-            decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(10)),
-            padding: const EdgeInsets.all(10),
-            child: Text(groupName, style: TextStyle(color: Colors.grey[600])),
-          )),
+        borderRadius: BorderRadius.circular(10),
+        focusColor: Colors.white,
+        onTap: () {
+          context
+              .read<SchedulePageViewModel>()
+              .updateState(newName: groupName, newGroup: groupId);
+          Navigator.pop(context);
+        },
+        child: Container(
+          decoration: BoxDecoration(
+              color: Colors.grey[200], borderRadius: BorderRadius.circular(10)),
+          padding: const EdgeInsets.all(10),
+          child: Text(
+            groupName,
+            style: TextStyle(color: Colors.grey[600]),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -111,59 +114,63 @@ class _SearchBarState extends State<SearchBar> {
   Widget build(BuildContext context) {
     Color focusColor = Colors.grey;
     return Consumer<SearchPageViewModel>(
-        builder: (context, value, child) => Row(
-              children: [
-                IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(Icons.arrow_back),
-                    iconSize: 30,
-                    splashRadius: 5),
-                Expanded(
-                    child: Container(
-                  padding: const EdgeInsets.only(left: 5),
-                  decoration: BoxDecoration(
-                      border: Border.all(color: focusColor),
-                      borderRadius: BorderRadius.circular(10)),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          onChanged: (search) {
-                            if (search.length >= 2) {
-                              value.updateSearchData(search);
-                            } else {
-                              if (value.model.searchResult.isNotEmpty) {
-                                value.clearSearchData();
-                              }
-                            }
-                          },
-                          controller: _controller,
-                          cursorColor: Colors.black,
-                          decoration: const InputDecoration(
-                            contentPadding: EdgeInsets.all(10),
-                            border: InputBorder.none,
-                            hintText:
-                                'Введите группу, аудиторию, или имя преподователя',
-                          ),
-                        ),
+      builder: (context, value, child) => Row(
+        children: [
+          IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.arrow_back),
+              iconSize: 30,
+              splashRadius: 5),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.only(left: 5),
+              decoration: BoxDecoration(
+                border: Border.all(color: focusColor),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      onChanged: (search) {
+                        if (search.length >= 2) {
+                          value.updateSearchData(search);
+                        } else {
+                          if (value.model.searchResult.isNotEmpty) {
+                            value.clearSearchData();
+                          }
+                        }
+                      },
+                      controller: _controller,
+                      cursorColor: Colors.black,
+                      decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.all(10),
+                        border: InputBorder.none,
+                        hintText:
+                            'Введите группу, аудиторию, или имя преподователя',
                       ),
-                      IconButton(
-                          onPressed: () {
-                            if (_controller.text != '') {
-                              _controller.clear();
-                            } else {
-                              Navigator.pop(context);
-                            }
-                          },
-                          icon: const Icon(Icons.clear),
-                          iconSize: 25,
-                          splashRadius: 5)
-                    ],
+                    ),
                   ),
-                )),
-              ],
-            ));
+                  IconButton(
+                    onPressed: () {
+                      if (_controller.text != '') {
+                        _controller.clear();
+                      } else {
+                        Navigator.pop(context);
+                      }
+                    },
+                    icon: const Icon(Icons.clear),
+                    iconSize: 25,
+                    splashRadius: 5,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../../view_model/schedule_page_view_model.dart';
+import '/view_model/schedule_page_view_model.dart';
 import 'calendar_state.dart';
 
 class CalendarAlert extends StatefulWidget {
@@ -17,7 +17,7 @@ class CalendarAlert extends StatefulWidget {
 class _CalendarAlertState extends State<CalendarAlert> {
   late int _currentMonth;
   late int _currentYear;
-  var _monthNameList = [
+  final _monthNameList = [
     'Январь',
     'Февраль',
     'Март',

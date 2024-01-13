@@ -2,7 +2,7 @@ import 'package:localstore/localstore.dart';
 import '/view_model/schedule_page_view_model.dart';
 
 class NotesService {
-  Localstore _db = Localstore.instance;
+  final Localstore _db = Localstore.instance;
 
   Future<Map<String, ScheduleNotesData>> getNotes() async {
     Map<String, ScheduleNotesData> notes = {};
@@ -22,15 +22,15 @@ class NotesService {
     int selectedColor,
     String message,
   ) {
-    final _localstorageId = _db.collection('notes').doc().id;
+    final localstorageId = _db.collection('notes').doc().id;
 
-    _db.collection('notes').doc(_localstorageId).set({
+    _db.collection('notes').doc(localstorageId).set({
       'id': id,
-      'localstorageId': _localstorageId,
+      'localstorageId': localstorageId,
       'color': selectedColor,
       'message': message
     });
-    return _localstorageId;
+    return localstorageId;
   }
 
   void clearNotes(String notesId) {

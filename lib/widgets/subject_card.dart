@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../service/api_secvice.dart';
-import '../global_context.dart';
+import '/service/api_service.dart';
+import '/global_context.dart';
 import '/widgets/subject_bottom_sheet.dart';
-import '../view_model/schedule_page_view_model.dart';
+import '/view_model/schedule_page_view_model.dart';
 
 class subjectCard extends StatefulWidget {
   Subject subjectInfo;
@@ -15,26 +15,12 @@ class subjectCard extends StatefulWidget {
 }
 
 class _subjectCardState extends State<subjectCard> {
-  var subjectKey = GlobalKey();
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: InkWell(
         onTap: () {
-          //returns null:
-          final cardContext = subjectKey.currentContext;
-          // final context = subjectKey.currentContext!;
-          //Error: The getter 'context' was called on null.
-          print(cardContext!.size!.height);
-
           showModalBottomSheet(
               isScrollControlled: true,
               context: GlobalNavigator.navigatorKey.currentContext!,
@@ -52,7 +38,6 @@ class _subjectCardState extends State<subjectCard> {
               });
         },
         child: Column(
-          key: subjectKey,
           children: [
             Container(
                 padding: const EdgeInsets.all(15),

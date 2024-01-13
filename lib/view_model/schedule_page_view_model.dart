@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '/service/notes_service.dart';
-import '/service/api_secvice.dart';
+import '/service/api_service.dart';
 
 class ScheduleNotes with ChangeNotifier {
   Map<String, ScheduleNotesData> _model = {};
@@ -52,11 +52,11 @@ class ScheduleNotesData {
 }
 
 class SchedulePageState {
-  String _searchType;
-  String _name;
-  int _group;
-  String _date;
-  Map<String, dynamic>? _data;
+  final String _searchType;
+  final String _name;
+  final int _group;
+  final String _date;
+  final Map<String, dynamic>? _data;
 
   SchedulePageState(
       this._searchType, this._name, this._group, this._date, this._data);

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '/service/api_secvice.dart';
+import '/service/api_service.dart';
 
 class SearchPageViewModel with ChangeNotifier {
   SearchPageState _model = SearchPageState({}, []);
@@ -41,8 +41,8 @@ class SearchPageViewModel with ChangeNotifier {
 }
 
 class SearchPageState {
-  Map<String, int> _groups;
-  List<dynamic> _searchResult;
+  final Map<String, int> _groups;
+  final List<dynamic> _searchResult;
 
   SearchPageState(this._groups, this._searchResult);
 

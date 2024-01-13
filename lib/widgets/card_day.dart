@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../service/api_secvice.dart';
+import '/service/api_service.dart';
 import 'subject_card.dart';
 
 class cardDay extends StatefulWidget {
-  List<Subject> _dataOfDay;
-  cardDay(this._dataOfDay, {super.key});
+  final List<Subject> _dataOfDay;
+  const cardDay(this._dataOfDay, {super.key});
 
   @override
   State<cardDay> createState() => _cardDayState();

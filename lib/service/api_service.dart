@@ -24,7 +24,6 @@ class Subject {
 }
 
 class APIService {
-  
   Future<Map<String, dynamic>?> getScheduleData(int id, String date) async {
     List<Subject> listSubject = [];
     String requestType;
