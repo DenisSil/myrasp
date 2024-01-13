@@ -29,37 +29,42 @@ class _DropdownState extends State<Dropdown> {
     return DropdownButtonHideUnderline(
       child: DropdownButton2<String>(
         onMenuStateChange: (value) {
-          setState(() {
-            menuOpen = !menuOpen;
-          });
+          setState(
+            () {
+              menuOpen = !menuOpen;
+            },
+          );
         },
         isExpanded: true,
         hint: Row(
           children: [
             Expanded(
-                child: Padding(
-              padding: const EdgeInsets.only(),
-              child: Text(
-                widget.selectedItem == null ? 'Любой' : widget.selectedItem!,
-                overflow: TextOverflow.ellipsis,
+              child: Padding(
+                padding: const EdgeInsets.only(),
+                child: Text(
+                  widget.selectedItem == null ? 'Любой' : widget.selectedItem!,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            )),
+            ),
           ],
         ),
         items: widget.items.keys
-            .map((String item) => DropdownMenuItem<String>(
-                  value: item,
-                  child: Text(
-                    item,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ))
+            .map(
+              (String item) => DropdownMenuItem<String>(
+                value: item,
+                child: Text(
+                  item,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            )
             .toList(),
         value: selectedValue,
         onChanged: (String? value) {
           setState(() {
             selectedValue = value;
-            widget.changeDropdownStateFunction(widget.items[value]);
+            widget.changeDropdownStateFunction([value, widget.items[value]]);
           });
         },
         buttonStyleData: ButtonStyleData(

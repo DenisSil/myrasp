@@ -24,7 +24,7 @@ class Subject {
 }
 
 class APIService {
-  Future<Map<String, dynamic>?> getScheduleData(int id, String date) async {
+  Future<Map<String, dynamic>> getScheduleData(int id, String date) async {
     List<Subject> listSubject = [];
     String requestType;
     Map<String, String> responseType = {
@@ -122,7 +122,7 @@ class APIService {
     return dataForSearch;
   }
 
-  Future<Map<String, int>?> getGroupForSettings() async {
+  Future<Map<String, int>> getGroupForSettings() async {
     Map<String, int> dataForSearch = {};
     var urlGroups =
         Uri.https('edu.donstu.ru', 'api/raspGrouplist', {'year': '2023-2024'});
