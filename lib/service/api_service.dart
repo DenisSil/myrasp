@@ -2,24 +2,47 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class Subject {
-  var data;
-  var timeStart;
-  var timeEnd;
-  var dayOfTheWeek;
-  var subjectName;
-  var teacher;
-  var classroom;
+  late String data;
+  final String timeStart;
+  final String timeEnd;
+  final String dayOfTheWeek;
+  final String subjectName;
+  final String teacher;
+  final String classroom;
 
   Subject(
-    data,
-    String this.timeStart,
-    String this.timeEnd,
-    String this.dayOfTheWeek,
-    String this.subjectName,
-    String this.teacher,
-    String this.classroom,
+    String data,
+    this.timeStart,
+    this.timeEnd,
+    this.dayOfTheWeek,
+    this.subjectName,
+    this.teacher,
+    this.classroom,
   ) {
     this.data = data.substring(5, 10).replaceFirst('-', '.');
+  }
+
+  factory Subject.fromJson(Map<String, dynamic> json) {
+    return Subject(
+        json['дата'],
+        json['начало'],
+        json['конец'],
+        json['день_недели'],
+        json['дисциплина'],
+        json['преподаватель'],
+        json['аудитория']);
+  }
+
+  static List<Subject> listFromJson(Map<String, dynamic> json) {
+    List<Subject> list = [];
+
+    List<dynamic> listJson = json['rasp'];
+
+    listJson.forEach((element) {
+      list.add(Subject.fromJson(element));
+    });
+
+    return list;
   }
 }
 
@@ -57,25 +80,16 @@ class APIService {
         name = responseJson['info']['prepod']['name'];
     }
 
-    final data = responseJson['rasp'];
+    listSubject = Subject.listFromJson(responseJson);
 
-    data.forEach((subject) {
-      listSubject.add(Subject(
-          subject['дата'],
-          subject['начало'],
-          subject['конец'],
-          subject['день_недели'],
-          subject['дисциплина'],
-          subject['преподаватель'],
-          subject['аудитория']));
-    });
     for (var subject in listSubject) {
       if (listSubjects.keys.contains(subject.data)) {
         listSubjects[subject.data]!.add(subject);
       } else {
-        if (subject.subjectName != "лек Военная кафедра") {
-          listSubjects[subject.data] = [subject];
+        if (subject.subjectName == "лек Военная кафедра") {
+          continue;
         }
+        listSubjects[subject.data] = [subject];
       }
     }
 

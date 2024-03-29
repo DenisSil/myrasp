@@ -65,13 +65,16 @@ class _SubjectBottomSheetState extends State<SubjectBottomSheet> {
             child: Row(
               children: [
                 Flexible(
-                    child: Text(_id,
-                        softWrap: true,
-                        maxLines: 3,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ))),
+                  child: Text(
+                    _id,
+                    softWrap: true,
+                    maxLines: 3,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

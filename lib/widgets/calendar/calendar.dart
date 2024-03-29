@@ -43,12 +43,12 @@ class _CalendarAlertState extends State<CalendarAlert> {
   Widget build(BuildContext context) {
     return Dialog(
       alignment: Alignment.center,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.background,
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.background,
         ),
         width: 300,
         height: 430,
@@ -59,40 +59,52 @@ class _CalendarAlertState extends State<CalendarAlert> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
-                    onPressed: () {
-                      setState(() {
-                        if (_currentMonth == 1) {
-                          _currentMonth = 12;
-                          _currentYear--;
-                        } else {
-                          _currentMonth--;
-                        }
-                      });
-                    },
-                    icon: const Icon(Icons.arrow_back)),
-                Text(_monthNameList[_currentMonth - 1]),
+                  onPressed: () {
+                    setState(() {
+                      if (_currentMonth == 1) {
+                        _currentMonth = 12;
+                        _currentYear--;
+                      } else {
+                        _currentMonth--;
+                      }
+                    });
+                  },
+                  icon: const Icon(
+                    Icons.arrow_back,
+                  ),
+                ),
+                Text(
+                  _monthNameList[_currentMonth - 1],
+                ),
                 IconButton(
-                    onPressed: () {
-                      setState(() {
-                        if (_currentMonth == 12) {
-                          _currentMonth = 1;
-                          _currentYear++;
-                        } else {
-                          _currentMonth++;
-                        }
-                      });
-                    },
-                    icon: const Icon(Icons.arrow_forward)),
+                  onPressed: () {
+                    setState(() {
+                      if (_currentMonth == 12) {
+                        _currentMonth = 1;
+                        _currentYear++;
+                      } else {
+                        _currentMonth++;
+                      }
+                    });
+                  },
+                  icon: const Icon(
+                    Icons.arrow_forward,
+                  ),
+                ),
               ],
             ),
             Expanded(
               child: GridView.count(
-                  shrinkWrap: false,
-                  crossAxisCount: 7,
-                  crossAxisSpacing: 5,
-                  mainAxisSpacing: 5,
-                  childAspectRatio: 0.9,
-                  children: generateCalendarDays(_currentYear, _currentMonth)),
+                shrinkWrap: false,
+                crossAxisCount: 7,
+                crossAxisSpacing: 5,
+                mainAxisSpacing: 5,
+                childAspectRatio: 0.9,
+                children: generateCalendarDays(
+                  _currentYear,
+                  _currentMonth,
+                ),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 5),
@@ -104,15 +116,23 @@ class _CalendarAlertState extends State<CalendarAlert> {
                     Align(
                       alignment: Alignment.bottomRight,
                       child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFFF9000)),
-                          onPressed: () {
-                            Navigator.pop(context, value.state);
-                          },
-                          child: const Padding(
-                            padding: EdgeInsets.all(10),
-                            child: Text('Ok'),
-                          )),
+                        style: ElevatedButton.styleFrom(
+                            shadowColor:
+                                Theme.of(context).colorScheme.onBackground,
+                            elevation: 5,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.background),
+                        onPressed: () {
+                          Navigator.pop(context, value.state);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Text(
+                            'Ok',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -128,32 +148,63 @@ class _CalendarAlertState extends State<CalendarAlert> {
 List<Widget> generateCalendarDays(int year, int month) {
   // генерирует список дней календаря на выбранный месяц
   List<Widget> list = [];
-  DateTime lastDayOfMonth = DateTime(year, month + 1, 0);
-  DateTime lastDayOfPerMonth = DateTime(year, month, 0);
+  DateTime lastDayOfMonth = DateTime(
+    year,
+    month + 1,
+    0,
+  );
+  DateTime lastDayOfPerMonth = DateTime(
+    year,
+    month,
+    0,
+  );
   var listdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
   for (int i = 0; i < 7; i++) {
-    list.add(Center(child: Text(listdays[i])));
+    list.add(
+      Center(
+        child: Text(
+          listdays[i],
+        ),
+      ),
+    );
   }
   var day = DateTime(year, month, 1);
 
   list.addAll(List<Widget>.generate(
     day.weekday - 1,
     (int index) => Center(
-        child: Text('${lastDayOfPerMonth.day - index}',
-            style: const TextStyle(color: Colors.grey))),
+      child: Text(
+        '${lastDayOfPerMonth.day - index}',
+        style: const TextStyle(
+          color: Colors.grey,
+        ),
+      ),
+    ),
   ).reversed);
   for (int i = 1; i < lastDayOfMonth.day + 1; i++) {
-    list.add(Consumer<CalendarDay>(
+    list.add(
+      Consumer<CalendarDay>(
         builder: (context, value, child) => calendarDay(
-            calendarText: '$i',
-            date: DateTime(year, month, i),
-            isSelectedDay: DateTime(year, month, i) == value.state)));
+          calendarText: '$i',
+          date: DateTime(year, month, i),
+          isSelectedDay: DateTime(year, month, i) == value.state,
+        ),
+      ),
+    );
   }
-  list.addAll(List<Widget>.generate(
+  list.addAll(
+    List<Widget>.generate(
       49 - list.length,
       (int index) => Center(
-          child: Text('${index + 1}',
-              style: const TextStyle(color: Colors.grey)))));
+        child: Text(
+          '${index + 1}',
+          style: const TextStyle(
+            color: Colors.grey,
+          ),
+        ),
+      ),
+    ),
+  );
 
   return list;
 }
@@ -211,21 +262,29 @@ class _calendarDayState extends State<calendarDay> {
         ),
         child: Container(
           decoration: BoxDecoration(
-            color: widget.isSelectedDay == true ? Colors.amber : Colors.white,
+            color: widget.isSelectedDay == true
+                ? Theme.of(context).colorScheme.onBackground
+                : Theme.of(context).colorScheme.background,
             borderRadius: BorderRadius.circular(8),
-            boxShadow: const [
+            boxShadow: [
               BoxShadow(
-                color: Colors.black38,
+                color: Theme.of(context).colorScheme.onBackground,
                 blurRadius: 1,
-                offset: Offset(1, 1),
+                offset: const Offset(1, 1),
               )
             ],
           ),
           child: Center(
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                Text(widget.calendarText),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  widget.calendarText,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: widget.isSelectedDay == true
+                          ? Theme.of(context).colorScheme.background
+                          : Theme.of(context).colorScheme.onBackground),
+                ),
                 notesOfDay.isEmpty
                     ? const SizedBox(
                         height: 1,
@@ -236,7 +295,9 @@ class _calendarDayState extends State<calendarDay> {
                         height: 5,
                         color: Colors.red,
                       )
-              ])),
+              ],
+            ),
+          ),
         ),
       ),
     );

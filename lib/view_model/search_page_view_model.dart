@@ -7,6 +7,14 @@ class SearchPageViewModel with ChangeNotifier {
 
   SearchPageState get model => _model;
 
+  SearchPageViewModel() {
+    init();
+  }
+
+  void init() {
+    getSearchData();
+  }
+
   void getSearchData() async {
     var data = await apiService.getSearchData();
     if (data == null) {
@@ -34,8 +42,9 @@ class SearchPageViewModel with ChangeNotifier {
     List<dynamic>? searchResult,
   }) {
     _model = _model.copyWith(
-        groups: groups ?? _model._groups,
-        searchResult: searchResult ?? _model._searchResult);
+      groups: groups ?? _model._groups,
+      searchResult: searchResult ?? _model._searchResult,
+    );
     notifyListeners();
   }
 }
@@ -44,7 +53,10 @@ class SearchPageState {
   final Map<String, int> _groups;
   final List<dynamic> _searchResult;
 
-  SearchPageState(this._groups, this._searchResult);
+  SearchPageState(
+    this._groups,
+    this._searchResult,
+  );
 
   Map<String, int> get groups => _groups;
   List<dynamic> get searchResult => _searchResult;
@@ -53,6 +65,9 @@ class SearchPageState {
     Map<String, int>? groups,
     List<dynamic>? searchResult,
   }) {
-    return SearchPageState(groups ?? _groups, searchResult ?? _searchResult);
+    return SearchPageState(
+      groups ?? _groups,
+      searchResult ?? _searchResult,
+    );
   }
 }

@@ -8,10 +8,14 @@ class SettingsService {
     if (data == null) {
       return {};
     }
+    print(data);
     return data;
   }
 
-  void saveSettings(String name, int group) {
-    _db.collection('settings').doc('123').set({'name': name, 'group': group});
+  void saveSettings(String name, int group, bool isDarkMode) {
+    _db
+        .collection('settings')
+        .doc('123')
+        .set({'name': name, 'group': group, 'isDarkMode': isDarkMode});
   }
 }

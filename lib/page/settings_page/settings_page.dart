@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:gap/gap.dart';
 import 'package:myrasp/view_model/settings_page_view_model.dart';
-import 'package:myrasp/widgets/dropdown.dart';
+import 'package:myrasp/widgets/searchible_dropdown.dart';
 import 'package:provider/provider.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -13,11 +13,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  @override
-  void initState() {
-    super.initState();
-    context.read<SettingsPageViewModel>().loadGroups();
-  }
+  List<dynamic>? _selectedGroup;
 
   @override
   Widget build(BuildContext context) {
@@ -26,33 +22,49 @@ class _SettingsPageState extends State<SettingsPage> {
         child: Consumer<SettingsPageViewModel>(
           builder: (context, model, child) {
             if (model.model.listGroups == null) {
-              return const Align(
+              return Align(
                 alignment: Alignment.center,
                 child: SpinKitCircle(
-                  color: Colors.black,
+                  color: Theme.of(context).colorScheme.primary,
                   size: 50.0,
                 ),
               );
             } else {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    icon: const Icon(Icons.arrow_back),
-                  ),
-                  const Gap(20),
-                  Dropdown(
-                    height: 45,
-                    width: 200,
-                    items: model.model.listGroups!,
-                    changeDropdownStateFunction: (value) {
-                      model.updateModel(newName: value[0], newGroup: value[1]);
-                    },
-                  ),
-                ],
+              return Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    IconButton(
+                      alignment: Alignment.centerLeft,
+                      splashRadius: 1,
+                      iconSize: 30,
+                      onPressed: () {
+                        if (_selectedGroup != null) {
+                          model.saveSettings(_selectedGroup![0],
+                              _selectedGroup![1], model.model.themeSetting);
+                        }
+                        Navigator.of(context).pop();
+                      },
+                      icon: const Icon(Icons.arrow_back),
+                    ),
+                    const Gap(20),
+                    SearchibleDropdown(
+                      width: 250,
+                      height: 50,
+                      items: model.model.listGroups!,
+                      onChangedSelectedItem: (value) {
+                        _selectedGroup = value;
+                      },
+                    ),
+                    Switch(
+                        activeColor: Colors.white,
+                        value: model.model.themeSetting,
+                        onChanged: (value) {
+                          model.updateModel(newThemeSettings: value);
+                        })
+                  ],
+                ),
               );
             }
           },

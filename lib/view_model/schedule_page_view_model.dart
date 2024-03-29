@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:myrasp/view_model/settings_page_view_model.dart';
+import 'package:provider/provider.dart';
 
 import '/service/notes_service.dart';
 import '/service/api_service.dart';
@@ -8,6 +10,14 @@ class ScheduleNotes with ChangeNotifier {
   NotesService notesService = NotesService();
 
   Map<String, ScheduleNotesData> get model => _model;
+
+  ScheduleNotes() {
+    init();
+  }
+
+  void init() {
+    getNotes();
+  }
 
   void getNotes() async {
     var localstoreData = await notesService.getNotes();
@@ -52,18 +62,15 @@ class ScheduleNotesData {
 }
 
 class SchedulePageState {
-  final String _searchType;
-  final String _name;
-  final int _group;
+  final String? _name;
+  final int? _group;
   final String _date;
   final Map<String, dynamic>? _data;
 
-  SchedulePageState(
-      this._searchType, this._name, this._group, this._date, this._data);
+  SchedulePageState(this._date, [this._name, this._group, this._data]);
 
-  String get searchType => _searchType;
-  int get group => _group;
-  String get name => _name;
+  int? get group => _group;
+  String? get name => _name;
   String get date => _date;
   Map<String, dynamic>? get data => _data;
 
@@ -72,20 +79,19 @@ class SchedulePageState {
   }
 
   SchedulePageState copyWith({
-    String? searchType,
     String? name,
     int? group,
     String? date,
     Map<String, dynamic>? data,
   }) {
-    return SchedulePageState(searchType ?? _searchType, name ?? _name,
-        group ?? _group, date ?? _date, data ?? _data);
+    return SchedulePageState(
+        date ?? _date, name ?? _name!, group ?? _group!, data ?? _data);
   }
 }
 
 class SchedulePageViewModel with ChangeNotifier {
-  var _model = SchedulePageState(
-      "idGroup", "ВКБ34", 50884, dateToString(DateTime.now()), null);
+  late SchedulePageState _model =
+      SchedulePageState(dateToString(DateTime.now()));
   APIService apiService = APIService();
 
   SchedulePageState get model => _model;
@@ -94,8 +100,27 @@ class SchedulePageViewModel with ChangeNotifier {
     return date.toString().substring(0, 10);
   }
 
+  SchedulePageViewModel update(SettingsPageViewModel settings) {
+    updateState(
+        newName: settings.model.name,
+        newGroup: settings.model.group,
+        newDate: null);
+    return this;
+  }
+
+  SchedulePageViewModel() {
+    init();
+  }
+
+  void init() async {
+    if (_model.name == null) {
+      return;
+    }
+    getScheduleData();
+  }
+
   void getScheduleData() async {
-    var data = await apiService.getScheduleData(_model.group, _model.date);
+    var data = await apiService.getScheduleData(_model.group!, _model.date);
     _model = _model.copyWith(data: data);
     notifyListeners();
   }
@@ -109,14 +134,13 @@ class SchedulePageViewModel with ChangeNotifier {
     _model = _model.copyWith(
       name: newName ?? _model.name,
       group: newGroup ?? _model.group,
-      searchType: newSearchType ?? _model.searchType,
       date: newDate == null ? _model.date : dateToString(newDate),
     );
+
+    notifyListeners();
 
     if (newGroup != null || newDate != null) {
       getScheduleData();
     }
-
-    notifyListeners();
   }
 }

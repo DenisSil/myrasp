@@ -6,15 +6,15 @@ import '/global_context.dart';
 import '/widgets/subject_bottom_sheet.dart';
 import '/view_model/schedule_page_view_model.dart';
 
-class subjectCard extends StatefulWidget {
+class SubjectCard extends StatefulWidget {
   Subject subjectInfo;
-  subjectCard(this.subjectInfo, {super.key});
+  SubjectCard(this.subjectInfo, {super.key});
 
   @override
-  State<subjectCard> createState() => _subjectCardState();
+  State<SubjectCard> createState() => _SubjectCardState();
 }
 
-class _subjectCardState extends State<subjectCard> {
+class _SubjectCardState extends State<SubjectCard> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -42,11 +42,11 @@ class _subjectCardState extends State<subjectCard> {
             Container(
                 padding: const EdgeInsets.all(15),
                 decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.background,
                     borderRadius: BorderRadius.circular(4),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.25),
+                        color: Theme.of(context).colorScheme.onBackground,
                         spreadRadius: 0,
                         blurRadius: 4,
                         offset:
@@ -62,15 +62,19 @@ class _subjectCardState extends State<subjectCard> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${widget.subjectInfo.subjectName}',
+                            widget.subjectInfo.subjectName,
                             softWrap: true,
                             style: const TextStyle(
-                                fontSize: 17, fontWeight: FontWeight.w600),
+                              fontSize: 17,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(top: 5.0),
+                            padding: const EdgeInsets.only(
+                              top: 5.0,
+                            ),
                             child: Text(
-                              '${widget.subjectInfo.teacher}',
+                              widget.subjectInfo.teacher,
                               softWrap: true,
                               style: const TextStyle(
                                 fontSize: 13,
@@ -97,33 +101,39 @@ class _subjectCardState extends State<subjectCard> {
                             ),
                           );
                         } else {
-                          return Container(
-                            width: 20,
-                            height: 20,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: Colors.white,
-                            ),
-                          );
+                          return const SizedBox();
                         }
                       }),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(left: 20),
+                      padding: const EdgeInsets.only(
+                        left: 20,
+                      ),
                       child: Column(
                         children: [
-                          Text('${widget.subjectInfo.timeStart}'),
+                          Text(
+                            widget.subjectInfo.timeStart,
+                          ),
                           Container(
                             width: 30,
                             color: Colors.black,
                             height: 1,
                             margin: const EdgeInsets.symmetric(
-                                vertical: 5, horizontal: 0),
+                              vertical: 5,
+                              horizontal: 0,
+                            ),
                           ),
-                          Text('${widget.subjectInfo.timeEnd}'),
+                          Text(
+                            widget.subjectInfo.timeEnd,
+                          ),
                           Padding(
-                              padding: const EdgeInsets.only(top: 10),
-                              child: Text('${widget.subjectInfo.classroom}'))
+                            padding: const EdgeInsets.only(
+                              top: 10,
+                            ),
+                            child: Text(
+                              widget.subjectInfo.classroom,
+                            ),
+                          ),
                         ],
                       ),
                     ),

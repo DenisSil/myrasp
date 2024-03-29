@@ -3,6 +3,7 @@ import 'dart:isolate';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:myrasp/view_model/settings_page_view_model.dart';
 import '/page/settings_page/settings_page.dart';
 import '/service/check_internet_service.dart';
 import 'package:provider/provider.dart';
@@ -22,11 +23,10 @@ class SchedulePage extends StatefulWidget {
 
 class _SchedulePageState extends State<SchedulePage> {
   bool internetConnectionState = true;
-  var data;
-  void intenetConnectionLoop() async {
+
+  void internetConnectionLoop() async {
     ReceivePort internetConnectionPort = ReceivePort();
-    Isolate internetConnection = await Isolate.spawn(
-        CheckInternetService.checkInternetContection,
+    Isolate.spawn(CheckInternetService.checkInternetContection,
         internetConnectionPort.sendPort);
     internetConnectionPort.listen((message) {
       setState(() {
@@ -38,10 +38,7 @@ class _SchedulePageState extends State<SchedulePage> {
   @override
   initState() {
     super.initState();
-
-    intenetConnectionLoop();
-    context.read<ScheduleNotes>().getNotes();
-    context.read<SchedulePageViewModel>().getScheduleData();
+    internetConnectionLoop();
   }
 
   @override
@@ -65,10 +62,10 @@ class _SchedulePageState extends State<SchedulePage> {
                         Consumer<SchedulePageViewModel>(
                             builder: (context, value, child) {
                           if (value.model.data == null) {
-                            return const Padding(
-                              padding: EdgeInsets.only(top: 30),
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 30),
                               child: SpinKitCircle(
-                                color: Colors.black,
+                                color: Theme.of(context).colorScheme.primary,
                                 size: 50.0,
                               ),
                             );
@@ -80,10 +77,12 @@ class _SchedulePageState extends State<SchedulePage> {
                                     padding: const EdgeInsets.only(
                                         top: 10, bottom: 10),
                                     child: Text(
-                                        "Расписание ${value.model.data!['type']} ${value.model.data!['name']}",
-                                        style: const TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.w600)),
+                                      "Расписание ${value.model.data!['type']} ${value.model.data!['name']}",
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
                                   ),
                                   ListView.builder(
                                       scrollDirection: Axis.vertical,
@@ -153,7 +152,9 @@ class ScheduleSettings extends StatelessWidget {
             child: Container(
               margin: const EdgeInsets.only(top: 10, right: 5),
               child: InkWell(
-                borderRadius: const BorderRadius.all(Radius.circular(10)),
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(10),
+                ),
                 focusColor: Colors.grey[400],
                 onTap: () async {
                   await Navigator.of(context).push(
@@ -169,14 +170,23 @@ class ScheduleSettings extends StatelessWidget {
                   decoration: BoxDecoration(
                       color: Colors.grey[200],
                       borderRadius: BorderRadius.circular(10)),
-                  padding: const EdgeInsets.only(top: 10, bottom: 10, left: 10),
+                  padding: const EdgeInsets.only(
+                    top: 10,
+                    bottom: 10,
+                    left: 10,
+                  ),
                   child: Row(
                     children: [
                       Icon(
                         Icons.search,
                         color: Colors.grey[600],
                       ),
-                      Text('Поиск', style: TextStyle(color: Colors.grey[600]))
+                      Text(
+                        'Поиск',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                        ),
+                      )
                     ],
                   ),
                 ),
@@ -184,26 +194,26 @@ class ScheduleSettings extends StatelessWidget {
             ),
           ),
           InkWell(
-            hoverColor: Colors.white,
-            highlightColor: Colors.white,
             onTap: () async {
               var date = value.model.date;
               var dataDate = await showDialog(
-                  context: context,
-                  builder: (context) => CalendarAlert(
-                        month: int.parse(date.substring(5, 7)),
-                        year: int.parse(date.substring(0, 4)),
-                      ));
+                context: context,
+                builder: (context) => CalendarAlert(
+                  month: int.parse(date.substring(5, 7)),
+                  year: int.parse(date.substring(0, 4)),
+                ),
+              );
               if (dataDate != null) {
                 value.updateState(newDate: dataDate);
               }
             },
-            child: const Icon(Icons.calendar_month, size: 34),
+            child: const Icon(
+              Icons.calendar_month,
+              size: 34,
+            ),
           ),
           const Gap(20),
           InkWell(
-            hoverColor: Colors.white,
-            highlightColor: Colors.white,
             onTap: () async {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -211,7 +221,10 @@ class ScheduleSettings extends StatelessWidget {
                 ),
               );
             },
-            child: const Icon(Icons.settings, size: 34),
+            child: const Icon(
+              Icons.settings,
+              size: 34,
+            ),
           ),
         ],
       ),

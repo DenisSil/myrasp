@@ -41,8 +41,10 @@ dependencies:
   gap: ^3.0.1
   dropdown_button2: ^2.3.9
   provider: ^6.1.1
-  intl: ^0.19.0
+  intl: ^0.18.0
   json_annotation: ^4.8.1
+  dropdown_search: ^5.0.6
+  json_theme: ^4.0.0
 
 
 dev_dependencies:
@@ -63,7 +65,9 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
+  assets:
+    - assets/theme/light_theme.json
+    - assets/theme/dark_theme.json
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
