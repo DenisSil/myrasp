@@ -19,10 +19,8 @@ class _cardDayState extends State<cardDay> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    var dateTimeFormat = DateFormat('MM.dd');
-    _todayDay = dateTimeFormat.format(DateTime.now());
 
-    if (widget._dataOfDay[0].data == _todayDay) {
+    if (widget._dataOfDay[0].date == DateTime.now()) {
       _clickCard = true;
     }
   }
@@ -57,7 +55,7 @@ class _cardDayState extends State<cardDay> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                      '${widget._dataOfDay[0].data} - ${widget._dataOfDay[0].dayOfTheWeek}',
+                      '${DateFormat("MM.dd").format(widget._dataOfDay[0].date)} - ${widget._dataOfDay[0].dayOfTheWeek}',
                       style: Theme.of(context).textTheme.titleLarge),
                   if (_clickCard)
                     const Icon(

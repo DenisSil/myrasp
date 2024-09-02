@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:myrasp/service/schedule_service.dart';
 import 'package:myrasp/view_model/settings_page_view_model.dart';
-import 'package:provider/provider.dart';
 
 import '/service/notes_service.dart';
 import '/service/api_service.dart';
@@ -64,15 +64,15 @@ class ScheduleNotesData {
 class SchedulePageState {
   final String? _name;
   final int? _group;
-  final String _date;
-  final Map<String, dynamic>? _data;
+  final DateTime _date;
+  final DataResponce? _data;
 
   SchedulePageState(this._date, [this._name, this._group, this._data]);
 
   int? get group => _group;
   String? get name => _name;
-  String get date => _date;
-  Map<String, dynamic>? get data => _data;
+  DateTime get date => _date;
+  DataResponce? get data => _data;
 
   static String dateToString(DateTime date) {
     return date.toString().substring(0, 10);
@@ -81,8 +81,8 @@ class SchedulePageState {
   SchedulePageState copyWith({
     String? name,
     int? group,
-    String? date,
-    Map<String, dynamic>? data,
+    DateTime? date,
+    DataResponce? data,
   }) {
     return SchedulePageState(
         date ?? _date, name ?? _name!, group ?? _group!, data ?? _data);
@@ -90,8 +90,7 @@ class SchedulePageState {
 }
 
 class SchedulePageViewModel with ChangeNotifier {
-  late SchedulePageState _model =
-      SchedulePageState(dateToString(DateTime.now()));
+  late SchedulePageState _model = SchedulePageState(DateTime.now());
   APIService apiService = APIService();
 
   SchedulePageState get model => _model;
@@ -120,7 +119,7 @@ class SchedulePageViewModel with ChangeNotifier {
   }
 
   void getScheduleData() async {
-    var data = await apiService.getScheduleData(_model.group!, _model.date);
+    var data = await ScheduleService().getSchedule(_model.group!, _model.date);
     _model = _model.copyWith(data: data);
     notifyListeners();
   }
@@ -134,7 +133,7 @@ class SchedulePageViewModel with ChangeNotifier {
     _model = _model.copyWith(
       name: newName ?? _model.name,
       group: newGroup ?? _model.group,
-      date: newDate == null ? _model.date : dateToString(newDate),
+      date: newDate ?? _model.date,
     );
 
     notifyListeners();

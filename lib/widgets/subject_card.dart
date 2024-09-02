@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '/service/api_service.dart';
@@ -25,16 +26,23 @@ class _SubjectCardState extends State<SubjectCard> {
               isScrollControlled: true,
               context: GlobalNavigator.navigatorKey.currentContext!,
               shape: const RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(12))),
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(12),
+                ),
+              ),
               builder: (context) {
                 return AnimatedPadding(
-                    duration: const Duration(milliseconds: 150),
-                    curve: Curves.easeOut,
-                    padding: EdgeInsets.only(
-                        bottom: MediaQuery.of(context).viewInsets.bottom),
-                    child: SubjectBottomSheet(widget.subjectInfo.data,
-                        widget.subjectInfo.subjectName));
+                  duration: const Duration(
+                    milliseconds: 150,
+                  ),
+                  curve: Curves.easeOut,
+                  padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom),
+                  child: SubjectBottomSheet(
+                    DateFormat("MM.dd").format(widget.subjectInfo.date),
+                    widget.subjectInfo.subjectName,
+                  ),
+                );
               });
         },
         child: Column(
@@ -42,17 +50,17 @@ class _SubjectCardState extends State<SubjectCard> {
             Container(
                 padding: const EdgeInsets.all(15),
                 decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.background,
-                    borderRadius: BorderRadius.circular(4),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Theme.of(context).colorScheme.onBackground,
-                        spreadRadius: 0,
-                        blurRadius: 4,
-                        offset:
-                            const Offset(0, 4), // changes position of shadow
-                      ),
-                    ]),
+                  color: Theme.of(context).colorScheme.background,
+                  borderRadius: BorderRadius.circular(4),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Theme.of(context).colorScheme.onBackground,
+                      spreadRadius: 0,
+                      blurRadius: 4,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -89,9 +97,9 @@ class _SubjectCardState extends State<SubjectCard> {
                       child: Consumer<ScheduleNotes>(
                           builder: (context, value, child) {
                         if (value.model.containsKey(
-                            "${widget.subjectInfo.data} - ${widget.subjectInfo.subjectName}")) {
+                            "${widget.subjectInfo.date} - ${widget.subjectInfo.subjectName}")) {
                           var currentNotes = value.model[
-                              "${widget.subjectInfo.data} - ${widget.subjectInfo.subjectName}"];
+                              "${widget.subjectInfo.date} - ${widget.subjectInfo.subjectName}"];
                           return Container(
                             width: 20,
                             height: 20,

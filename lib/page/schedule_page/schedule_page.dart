@@ -1,11 +1,7 @@
-import 'dart:isolate';
-
 import 'package:flutter/material.dart';
 
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:myrasp/view_model/settings_page_view_model.dart';
 import '/page/settings_page/settings_page.dart';
-import '/service/check_internet_service.dart';
 import 'package:provider/provider.dart';
 
 import '/widgets/card_day.dart';
@@ -14,128 +10,91 @@ import '/view_model/schedule_page_view_model.dart';
 import '../search_page/search_page.dart';
 import 'package:gap/gap.dart';
 
-class SchedulePage extends StatefulWidget {
+class SchedulePage extends StatelessWidget {
   const SchedulePage({super.key});
-
-  @override
-  State<SchedulePage> createState() => _SchedulePageState();
-}
-
-class _SchedulePageState extends State<SchedulePage> {
-  bool internetConnectionState = true;
-
-  void internetConnectionLoop() async {
-    ReceivePort internetConnectionPort = ReceivePort();
-    Isolate.spawn(CheckInternetService.checkInternetContection,
-        internetConnectionPort.sendPort);
-    internetConnectionPort.listen((message) {
-      setState(() {
-        internetConnectionState = message;
-      });
-    });
-  }
-
-  @override
-  initState() {
-    super.initState();
-    internetConnectionLoop();
-  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: internetConnectionState == true
-          ? Align(
-              alignment: Alignment.topCenter,
-              child: ScrollConfiguration(
-                behavior:
-                    ScrollConfiguration.of(context).copyWith(scrollbars: false),
-                child: SingleChildScrollView(
-                  child: Container(
-                    margin: const EdgeInsets.only(left: 20, right: 20),
-                    constraints: const BoxConstraints(
-                      maxWidth: 600,
-                    ),
-                    child: Column(
-                      children: [
-                        const ScheduleSettings(),
-                        Consumer<SchedulePageViewModel>(
-                            builder: (context, value, child) {
-                          if (value.model.data == null) {
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 30),
-                              child: SpinKitCircle(
-                                color: Theme.of(context).colorScheme.primary,
-                                size: 50.0,
-                              ),
-                            );
-                          } else {
-                            if (value.model.data != {}) {
-                              return Column(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 10, bottom: 10),
-                                    child: Text(
-                                      "Расписание ${value.model.data!['type']} ${value.model.data!['name']}",
-                                      style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                  ListView.builder(
-                                      scrollDirection: Axis.vertical,
-                                      shrinkWrap: true,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      padding: const EdgeInsets.only(bottom: 8),
-                                      itemCount: value
-                                          .model.data!['listSubjects'].keys
-                                          .toList()
-                                          .length,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        return cardDay(
-                                            value.model.data!['listSubjects'][
-                                                value.model
-                                                    .data!['listSubjects'].keys
-                                                    .toList()[index]]!);
-                                      }),
-                                ],
-                              );
-                            } else {
-                              return const Padding(
-                                padding: EdgeInsets.only(top: 30),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+          child: SingleChildScrollView(
+            child: Container(
+              margin: const EdgeInsets.only(left: 20, right: 20),
+              constraints: const BoxConstraints(
+                maxWidth: 600,
+              ),
+              child: Column(
+                children: [
+                  const ScheduleSettings(),
+                  Consumer<SchedulePageViewModel>(
+                    builder: (context, value, child) {
+                      if (value.model.data == null) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 30),
+                          child: SpinKitCircle(
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 50.0,
+                          ),
+                        );
+                      } else {
+                        if (value.model.data != null) {
+                          return Column(
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 10, bottom: 10),
                                 child: Text(
-                                  'Нет данных',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    decoration: TextDecoration.none,
-                                    fontWeight: FontWeight.w600,
+                                  "Расписание ${value.model.data!.responceType} ${value.model.data!.name}",
+                                  style: const TextStyle(
                                     fontSize: 20,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                              );
-                            }
-                          }
-                        })
-                      ],
-                    ),
+                              ),
+                              ListView.builder(
+                                scrollDirection: Axis.vertical,
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                padding: const EdgeInsets.only(bottom: 8),
+                                itemCount: value.model.data!.listSubjects.keys
+                                    .toList()
+                                    .length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return cardDay(
+                                    value.model.data!.listSubjects[value
+                                        .model.data!.listSubjects.keys
+                                        .toList()[index]]!,
+                                  );
+                                },
+                              ),
+                            ],
+                          );
+                        } else {
+                          return const Padding(
+                            padding: EdgeInsets.only(top: 30),
+                            child: Text(
+                              'Нет данных',
+                              style: TextStyle(
+                                color: Colors.black,
+                                decoration: TextDecoration.none,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 20,
+                              ),
+                            ),
+                          );
+                        }
+                      }
+                    },
                   ),
-                ),
-              ),
-            )
-          : const Center(
-              child: Text(
-                'Нет интернета',
-                style: TextStyle(
-                  color: Colors.black,
-                  decoration: TextDecoration.none,
-                  fontSize: 20,
-                ),
+                ],
               ),
             ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -156,20 +115,12 @@ class ScheduleSettings extends StatelessWidget {
                   Radius.circular(10),
                 ),
                 focusColor: Colors.grey[400],
-                onTap: () async {
-                  await Navigator.of(context).push(
-                    PageRouteBuilder(
-                      pageBuilder: (_, __, ___) => const SearchPage(),
-                      transitionDuration: const Duration(milliseconds: 250),
-                      transitionsBuilder: (_, a, __, c) =>
-                          FadeTransition(opacity: a, child: c),
-                    ),
-                  );
-                },
+                onTap: () => _onTapSearch(context),
                 child: Container(
                   decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(10)),
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   padding: const EdgeInsets.only(
                     top: 10,
                     bottom: 10,
@@ -199,8 +150,8 @@ class ScheduleSettings extends StatelessWidget {
               var dataDate = await showDialog(
                 context: context,
                 builder: (context) => CalendarAlert(
-                  month: int.parse(date.substring(5, 7)),
-                  year: int.parse(date.substring(0, 4)),
+                  month: date.month,
+                  year: date.year,
                 ),
               );
               if (dataDate != null) {
@@ -230,4 +181,20 @@ class ScheduleSettings extends StatelessWidget {
       ),
     );
   }
+
+  void _onTapSearch(BuildContext context){
+    Navigator.of(context).push(
+                    PageRouteBuilder(
+                      pageBuilder: (_, __, ___) => const SearchPage(),
+                      transitionDuration: const Duration(milliseconds: 250),
+                      transitionsBuilder: (_, a, __, c) =>
+                          FadeTransition(opacity: a, child: c),
+                    ),
+                  );
+  }
+
+  void _onTapSettings(BuildContext context) {
+
+  }
+
 }

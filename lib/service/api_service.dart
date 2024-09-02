@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 class Subject {
-  late String data;
+  late DateTime _date;
   final String timeStart;
   final String timeEnd;
   final String dayOfTheWeek;
@@ -10,27 +11,48 @@ class Subject {
   final String teacher;
   final String classroom;
 
+  DateTime get date => _date;
+
   Subject(
-    String data,
+    DateTime date,
     this.timeStart,
     this.timeEnd,
     this.dayOfTheWeek,
     this.subjectName,
     this.teacher,
     this.classroom,
-  ) {
-    this.data = data.substring(5, 10).replaceFirst('-', '.');
+  ) : _date = date;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'дата': date.toString(),
+      'начало': timeStart,
+      'конец': timeEnd,
+      'день_недели': dayOfTheWeek,
+      'дисциплина': subjectName,
+      'преподаватель': teacher,
+      'аудитория': classroom,
+    };
   }
 
   factory Subject.fromJson(Map<String, dynamic> json) {
+
+    late DateTime date;
+
+    try{
+      date = DateTime.parse(json['дата']); 
+    }catch (e){
+      date = DateTime.now();
+    }
+
     return Subject(
-        json['дата'],
+        date,
         json['начало'],
         json['конец'],
         json['день_недели'],
         json['дисциплина'],
         json['преподаватель'],
-        json['аудитория']);
+        json['аудитория'],);
   }
 
   static List<Subject> listFromJson(Map<String, dynamic> json) {
@@ -44,10 +66,37 @@ class Subject {
 
     return list;
   }
+
+  static List<Subject> listMapToListSubjects(List<Map<String, dynamic>> json) {
+    return json.map((subject) => Subject.fromJson(subject)).toList();
+  }
+}
+
+class DataResponce {
+  String _name;
+  String _responceType;
+  Map<String, List<Subject>> _listSubjects;
+
+  String get name => _name;
+  set name(String value) => _name = value;
+
+  String get responceType => _responceType;
+  set responceType(String value) => _responceType = value;
+
+  Map<String, List<Subject>> get listSubjects => _listSubjects;
+  set listSubjects(Map<String, List<Subject>> value) => _listSubjects = value;
+
+  DataResponce(
+    String name,
+    String responceType,
+    Map<String, List<Subject>> listSubjects,
+  )   : _name = name,
+        _responceType = responceType,
+        _listSubjects = listSubjects;
 }
 
 class APIService {
-  Future<Map<String, dynamic>> getScheduleData(int id, String date) async {
+  Future<DataResponce> getScheduleData(int id, DateTime date) async {
     List<Subject> listSubject = [];
     String requestType;
     Map<String, String> responseType = {
@@ -65,12 +114,12 @@ class APIService {
       requestType = "idTeacher";
     }
 
-    var url = Uri.https(
-        'edu.donstu.ru', 'api/Rasp', {requestType: '$id', 'sdate': date});
+    var url = Uri.https('edu.donstu.ru', 'api/Rasp',
+        {requestType: '$id', 'sdate': DateFormat("dd.MM.yyyy").format(date)});
 
     final response = await http.get(url);
     var responseJson = jsonDecode(response.body)['data'];
-    var name;
+    late String name;
     switch (requestType) {
       case 'idGroup':
         name = responseJson['info']['group']['name'];
@@ -82,22 +131,25 @@ class APIService {
 
     listSubject = Subject.listFromJson(responseJson);
 
+    var dateTimeFormat = DateFormat('MM.dd');
+
     for (var subject in listSubject) {
-      if (listSubjects.keys.contains(subject.data)) {
-        listSubjects[subject.data]!.add(subject);
+      if (listSubjects.keys.contains(subject.date.toString())) {
+        listSubjects[subject.date.toString()]!.add(subject);
       } else {
         if (subject.subjectName == "лек Военная кафедра") {
           continue;
         }
-        listSubjects[subject.data] = [subject];
+        listSubjects[subject.date.toString()] = [subject];
       }
     }
 
-    var getDataResponse = {
-      'name': name,
-      'type': responseType[requestType],
-      'listSubjects': listSubjects
-    };
+    var getDataResponse = DataResponce(
+      name,
+      responseType[requestType]!,
+      listSubjects,
+    );
+
     return getDataResponse;
   }
 
